@@ -44,7 +44,7 @@ export const addStudent = async (req, res) => {
             "GIT_ESE": marksArray[4],
             "SGPI_(GPA)": sgpi
         }
-        const response = await fetch(process.env.FLASK_SERVER_URL, {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

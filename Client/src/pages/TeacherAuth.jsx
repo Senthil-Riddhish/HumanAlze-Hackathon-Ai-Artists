@@ -57,6 +57,7 @@ function TeacherAuth() {
         setIsLoading(false);
       }
     } else {
+      console.log("fetching...");
       const response = await fetch(`${API_ENDPOINT}user/teacher-login`, {
         method: "POST",
         headers: {
@@ -71,7 +72,9 @@ function TeacherAuth() {
       const data = await response.json();
       if (data.teacher) {
         alert(data.message);
+        console.log(data);
         localStorage.setItem("user", data.teacher);
+        localStorage.setItem("userID", data.teacherID);
         setIsLoading(false);
         navigate("/teacher-classes");
       } else {

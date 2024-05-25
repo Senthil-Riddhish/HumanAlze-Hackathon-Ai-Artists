@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "kunal salunkhe",
   "license": "ISC",
@@ -17,5 +18,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.2",
     "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

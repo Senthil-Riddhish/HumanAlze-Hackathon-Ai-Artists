@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 
 
 export const teacherSignup = async (req, res) => {
+    console.log("request fetched");
     const newPassword = await bcrypt.hash(req.body.password, 10)
     try {
         await Teacher.create({
@@ -39,7 +40,7 @@ export const teacherLogin = async (req, res) => {
             email: teacher.email
         }, 'secret123')
 
-        res.json({ message: 'Login Successful', teacher: token })
+        res.json({ message: 'Login Successful', teacher: token,teacherID: teacher._id})
 
     } catch (err) {
         console.log(err)
