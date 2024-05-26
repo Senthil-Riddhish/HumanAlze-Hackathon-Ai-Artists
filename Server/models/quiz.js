@@ -5,8 +5,9 @@ const quizSchema = new mongoose.Schema(
         teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
         quizName: { type: String, required: true },
         description: { type: String, required: true },
+        switchclick:{type:Boolean},
         createdAt: { type: String},
-        numberofQuestions: { type: String, required: true },
+        numberofQuestions: { type: Number, default:0},
         questions: { type: Array, default: [] }
     },
     { collection: 'quiz-data' }

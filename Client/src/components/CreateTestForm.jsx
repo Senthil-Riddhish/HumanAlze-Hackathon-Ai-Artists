@@ -8,7 +8,6 @@ const CreateTestForm = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [testName, setTestName] = useState("");
     const [testDescription, setTestDescription] = useState("");
-    const [numQuestions, setNumQuestions] = useState("");
     const navigate = useNavigate();
     const teacherID=localStorage.getItem("userID");
 
@@ -47,8 +46,7 @@ const CreateTestForm = () => {
         const newTest = {
             teacherId: teacherID,
             quizName: testName,
-            description: testDescription,
-            numberofQuestions: numQuestions
+            description: testDescription
         };
         console.log(newTest);
         try {
@@ -74,7 +72,6 @@ const CreateTestForm = () => {
             // Reset the form fields
             setTestName("");
             setTestDescription("");
-            setNumQuestions("");
         } catch (error) {
             console.error("Error creating quiz:", error);
         }
@@ -96,13 +93,6 @@ const CreateTestForm = () => {
                     value={testDescription}
                     onChange={(e) => setTestDescription(e.target.value)}
                     placeholder="Test Description"
-                    className="border p-2 w-full"
-                />
-                <input
-                    type="number"
-                    value={numQuestions}
-                    onChange={(e) => setNumQuestions(e.target.value)}
-                    placeholder="Number of Questions"
                     className="border p-2 w-full"
                 />
                 <button

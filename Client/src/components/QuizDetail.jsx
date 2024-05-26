@@ -26,6 +26,9 @@ const QuizDetail = () => {
     const [marks, setMarks] = useState(0);
     const [questionText, setQuestionText] = useState('');
     const [correctOption, setCorrectOption] = useState('');
+    const [numberofQuestions, setnumberofQuestions] = useState('0');
+    const [switchclick,setSwitchclick]=useState(false);
+    let data={}
 
     useEffect(() => {
         const fetchQuizDetail = async () => {
@@ -45,9 +48,10 @@ const QuizDetail = () => {
                 }
 
                 const result = await response.json();
-                console.log(result.quiz);
+                console.log("page lad : ", result.quiz);
                 setQuiz(result.quiz);
                 setQuizzes(result.quiz.questions)
+                setnumberofQuestions(result.quiz.numberofQuestions.toString())
             } catch (error) {
                 console.error("Error fetching quiz detail:", error);
                 setError('Failed to fetch quiz details');
@@ -89,25 +93,32 @@ const QuizDetail = () => {
     };
 
     const handleSubmit = async () => {
-        const data={}
-        if (questionType==="MCQ" || questionType==="MAQ"){
-            const data = {
+        if (questionType === "MCQ" || questionType === "MAQ") {
+            data={
                 questionText,
                 options,
                 correctOption,
                 questionType,
                 marks
             };
-        }else if(questionType==="Essay"){
-            const data = {
+        }
+        if (questionType === "Essay") {
+            data={
                 questionText,
                 questionType,
-                marks
+                marks,
+                switchclick
             };
+            console.log({
+                questionText,
+                questionType,
+                marks,
+                switchclick
+            });
+            console.log("essay data : ",data);
         }
-        
+
         //setSubmittedData(data);
-        console.log(data);
         setShow(false);
         setQuestionType('');
         setNumOptions(0);
@@ -115,6 +126,7 @@ const QuizDetail = () => {
         setMarks(0);
         setQuestionText('');
         setCorrectOption('');
+        setSwitchclick(false)
 
         try {
             const response = await fetch(`${API_ENDPOINT}user/addquestion/${quizId}`, {
@@ -136,6 +148,7 @@ const QuizDetail = () => {
             console.log("submit result : ", result);
             //setQuiz(result.quiz);
             setQuizzes(result.questions);
+            setnumberofQuestions((parseInt(numberofQuestions) + 1).toString())
         } catch (error) {
             console.error("Error adding question:", error);
             setError('Failed to add question');
@@ -152,6 +165,7 @@ const QuizDetail = () => {
         setMarks(0);
         setQuestionText('');
         setCorrectOption('');
+        setSwitchclick(false)
     }
 
     function handleView(index) {
@@ -180,9 +194,16 @@ const QuizDetail = () => {
 
             // Update the state to remove the deleted question
             setQuizzes(result.questions);
+            setnumberofQuestions((parseInt(numberofQuestions) - 1).toString())
         } catch (error) {
             console.error("Error deleting question:", error);
             setError('Failed to delete question');
+        }
+    };
+
+    const handleSwitchChange = (event) => {
+        if (event.target.checked) {
+            setSwitchclick(true)
         }
     };
 
@@ -190,7 +211,7 @@ const QuizDetail = () => {
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">{quiz.quizName}</h1>
             <p><strong>Description:</strong> {quiz.description}</p>
-            <p><strong>Number of Questions:</strong> {quiz.numberofQuestions}</p>
+            <p><strong>Number of Questions:</strong> {numberofQuestions}</p>
             <>
                 {values.map((v, idx) => (
                     <Button key={idx} className="me-2 mb-2" onClick={() => handleShow(v)}>
@@ -258,7 +279,7 @@ const QuizDetail = () => {
                                     max="10"
                                     className="d-inline-block w-auto me-2" /></>
                             )}
-                            {(questionType.length>0) && (
+                            {(questionType.length > 0) && (
                                 <><Form.Label className="me-2">Marks Alloted : </Form.Label><Form.Control
                                     type="number"
                                     value={marks}
@@ -266,8 +287,8 @@ const QuizDetail = () => {
                                     min="2"
                                     max="10"
                                     className="d-inline-block w-auto me-2" />
-                                    {(questionType!="Essay")&& (<Button onClick={handleNumOptionsSubmit}>Submit</Button>)}
-                                    </>
+                                    {(questionType != "Essay") && (<Button onClick={handleNumOptionsSubmit}>Submit</Button>)}
+                                </>
                             )}
                         </Form.Group>
                     )}
@@ -311,6 +332,12 @@ const QuizDetail = () => {
                     {
                         (questionType === "Essay") && (
                             <>
+                                <Form.Check // prettier-ignore
+                                    type="switch"
+                                    id="custom-switch"
+                                    label="Plagiarism Check"
+                                    onChange={handleSwitchChange}
+                                />
                                 <Form.Group className="mt-3">
                                     <Form.Label>Type the Question</Form.Label>
                                     <Form.Control

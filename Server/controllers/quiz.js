@@ -7,14 +7,13 @@ const router = express.Router()
 
 export const createQuiz = async (req, res) => {
     console.log(req.body);
-    const { teacherId, quizName, description, numberofQuestions } = req.body;
+    const { teacherId, quizName, description} = req.body;
 
     try {
         const newQuiz = await Quiz.create({
             teacherId,
             quizName,
-            description,
-            numberofQuestions
+            description
         });
 
         await Teacher.findByIdAndUpdate(teacherId, {
@@ -81,10 +80,12 @@ export const retrievequiz=async (req, res) => {
     }
 };
 
-export const addQuestion=async (req, res) => {
-    console.log("adding Question...");
+export const addQuestion = async (req, res) => {
+    console.log("adding Question...", req.body);
     const { quizId } = req.params;
-    const { questionText, options, correctOption, questionType, marks } = req.body;
+    const { questionType, questionText, options, correctOption, marks, switchclick } = req.body;
+
+    let newQuestion = {};
 
     try {
         // Find the quiz by ID
@@ -94,13 +95,23 @@ export const addQuestion=async (req, res) => {
         }
 
         // Create the new question
-        const newQuestion = {
-            questionText,
-            options,
-            correctOption,
-            questionType,
-            marks
-        };
+        if (questionType == 'MCQ' || questionType == 'MAQ') {
+            newQuestion = {
+                questionText,
+                options,
+                correctOption,
+                questionType,
+                marks
+            };
+        } else if (questionType == 'Essay') {
+            newQuestion = {
+                questionText,
+                questionType,
+                marks,
+                switchclick
+            };
+            console.log(newQuestion);
+        }
 
         // Add the question to the quiz
         quiz.questions.push(newQuestion);
@@ -118,6 +129,7 @@ export const addQuestion=async (req, res) => {
     }
 };
 
+
 export const deleteQuestion = async (req, res) => {
     const { index } = req.params;
     const { quizId } = req.body;
@@ -131,7 +143,7 @@ export const deleteQuestion = async (req, res) => {
 
         // Remove the question at the specified index
         quiz.questions.splice(index, 1);
-
+        quiz.numberofQuestions = quiz.questions.length;
         // Save the updated quiz document
         await quiz.save();
 
@@ -145,16 +157,7 @@ export const deleteQuestion = async (req, res) => {
 
 export const updateQuestion = async (req, res) => {
     console.log(req.body);
-    const { 
-        questionText,
-        options,
-        correctOption,
-        marks,
-        index,
-        quizid
-    } = req.body;
-
-    const questionIndex = parseInt(index, 10); // Convert index to integer
+    const { questionType, questionText, options, correctOption, marks, switchclick, index, quizid } = req.body;
 
     try {
         // Check if quizid is a valid ObjectId
@@ -162,15 +165,30 @@ export const updateQuestion = async (req, res) => {
             return res.status(400).json({ error: 'Invalid quiz ID' });
         }
 
-        // Create the update object
-        const update = {
-            $set: {
-                [`questions.${questionIndex}.questionText`]: questionText,
-                [`questions.${questionIndex}.options`]: options,
-                [`questions.${questionIndex}.correctOption`]: correctOption,
-                [`questions.${questionIndex}.marks`]: marks
-            }
-        };
+        const questionIndex = parseInt(index, 10); // Convert index to integer
+
+        // Create the update object based on question type
+        let update;
+        if (questionType == 'MCQ' || questionType == 'MAQ') {
+            update = {
+                $set: {
+                    [`questions.${questionIndex}.questionText`]: questionText,
+                    [`questions.${questionIndex}.options`]: options,
+                    [`questions.${questionIndex}.correctOption`]: correctOption,
+                    [`questions.${questionIndex}.marks`]: marks
+                }
+            };
+        } else if (questionType == 'Essay') {
+            update = {
+                $set: {
+                    [`questions.${questionIndex}.questionText`]: questionText,
+                    [`questions.${questionIndex}.marks`]: marks,
+                    [`questions.${questionIndex}.switchclick`]: switchclick
+                }
+            };
+        } else {
+            return res.status(400).json({ error: 'Invalid question type' });
+        }
 
         // Update the specific question in the quiz
         const result = await Quiz.updateOne({ _id: quizid }, update);
@@ -186,4 +204,4 @@ export const updateQuestion = async (req, res) => {
         console.error("Error updating question:", error);
         res.status(500).json({ error: 'Internal server error' });
     }
-};
+}

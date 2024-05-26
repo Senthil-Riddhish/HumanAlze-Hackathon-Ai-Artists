@@ -24,7 +24,7 @@ function Example({ index, quiz }) {
                 <Modal.Body>
                     {quiz.questionText}
                     {
-                        (quiz.questionType == "MCQ") && (quiz.options.length > 0) && (
+                        (quiz.questionType === "MCQ") && (quiz.options.length > 0) && (
                             <ListGroup as="ol" numbered className='pt-3'>
                                {
                                     quiz.options.map((list,key)=>(

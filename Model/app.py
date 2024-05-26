@@ -21,6 +21,11 @@ def predict():
     prediction = model.predict(new_data)
     return jsonify(prediction.tolist())
 
+@app.route('/grammerpredict', methods=['POST'])
+def grammerpredict():
+    data = request.get_json(force=True)
+    print(data)
+
 
 # print(predict)
 
