@@ -30,10 +30,11 @@ function CreateTest() {
 
     return (
         <div className="flex">
-            <Dashboard name={teacher} />
+            <Dashboard name={teacher} role={"Teacher"}/>
             <Routes>
                 <Route path="/" element={<CreateTestForm />} />
                 <Route path="/quiz/:quizId" element={<QuizDetail />} />
+                <Route path="/allocatingTest" element={<QuizDetail />} />
             </Routes>
         </div>
     );

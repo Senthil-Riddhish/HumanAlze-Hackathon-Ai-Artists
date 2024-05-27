@@ -1,40 +1,20 @@
-import mongoose from "mongoose";
+// models/Student.js
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const studentSchema = new mongoose.Schema({
-    studentName: {
-        type: String,
-        required: true
-    },
-    rollNumber: {
-        type: Number,
-        required: true
-    },
-    studentClass: {
-        type: String,
-        required: true
-    },
-    studentClassId: {
-        type: String,
-        required: true
-    },
-    marks: {
-        type: Map,
-        of: Number
-    },
-    sgpi: {
-        type: Number,
-        required: true
-    },
-    defaulter: {
-        type: String,
-        required: true
-    },
-    prediction: {
-        type: String,
-        required: true
-    }
-}, { collection: 'student-data' });
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  regno: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
+studentSchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
-const Student = mongoose.model('Student', studentSchema)
-export default Student
+const student = mongoose.model('student', studentSchema);
+export default student;

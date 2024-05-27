@@ -98,7 +98,7 @@ function ViewAnalytics() {
 
   return (
     <div className="flex">
-      <Dashboard name={Teacher} />
+      <Dashboard name={Teacher} role={"Teacher"}/>
       <div className="flex-1 flex flex-col gap-8 items-center py-20 px-4">
         <div className="flex gap-4 w-full items-center mb-6">
           <label className="text-xl font-semibold" htmlFor="studentClass">

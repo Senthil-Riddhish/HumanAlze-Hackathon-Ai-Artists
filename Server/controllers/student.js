@@ -1,23 +1,48 @@
 import Student from "../models/student.js";
 import fetch from "node-fetch"
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-export const studentLogin = async (req, res) => {
-    const { rollNumber, studentClass } = req.body;
-
+export const signup = async (req, res) => {
     try {
-        const student = await Student.findOne({ rollNumber, studentClass });
-
-        if (!student) {
-            return res.status(401).json({ message: 'Invalid rollNumber or studentClass' });
-        }
-
-        return res.status(200).json({ message: 'Login successful', student });
+      const { name, email, regno, password } = req.body;
+      console.log("student signup...");
+      const existingStudent = await Student.findOne({ email });
+      if (existingStudent) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+  
+      const newStudent = new Student({ name, email, regno, password });
+      await newStudent.save();
+      res.status(201).json({ message: 'ok' });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Internal server error' });
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-}
+  };
+  
+export const login = async (req, res) => {
+    try {
+      const { regno, password } = req.body;
+      const student = await Student.findOne({ regno });
+      if (!student) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+  
+      const isMatch = await bcrypt.compare(password, student.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+      }
+      const token = jwt.sign({
+        name: student.name,
+        studentId: student._id
+    }, 'secret123')
+      res.json({ message: 'ok', token, studentId: student._id });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
 
 export const addStudent = async (req, res) => {
     try {

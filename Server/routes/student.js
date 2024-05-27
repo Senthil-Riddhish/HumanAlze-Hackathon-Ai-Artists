@@ -1,10 +1,11 @@
 import express from "express"
-import { addStudent, getStudents, getStudentData, studentLogin, deleteStudent } from "../controllers/student.js"
+import { addStudent, getStudents, getStudentData, signup,login, deleteStudent } from "../controllers/student.js"
 
 
 const router = express.Router()
 
-router.post('/login', studentLogin)
+router.post('/signup', signup);
+router.post('/login', login);
 router.post('/add-student', addStudent)
 router.get('/get-students', getStudents)
 router.get('/get-student-data', getStudentData)

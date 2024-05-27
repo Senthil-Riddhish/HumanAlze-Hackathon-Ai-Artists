@@ -1,5 +1,5 @@
 import Class from "../models/class.js";
-import Student from "../models/student.js"
+import Student from "../models/studentmanual.js"
 
 export const addClass = async (req, res) => {
     const { className, sem, year, subject } = req.body;

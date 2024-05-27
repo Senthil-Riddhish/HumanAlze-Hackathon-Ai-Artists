@@ -21,7 +21,7 @@ function StudentPage() {
 
   return (
     <div className="flex">
-      <Dashboard name={Teacher} />
+      <Dashboard name={Teacher} role={"Teacher"}/>
       <div className="flex-1">
         <StudentProfile />
       </div>

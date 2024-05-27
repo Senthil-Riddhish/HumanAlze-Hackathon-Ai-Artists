@@ -64,7 +64,7 @@ const AddClass = () => {
 
   return (
     <div className="flex ">
-      <Dashboard name={Teacher} />
+      <Dashboard name={Teacher} role={"Teacher"}/>
       <form
         className="flex flex-col flex-1 justify-center items-center py-20"
         onSubmit={handleSubmit}

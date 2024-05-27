@@ -99,7 +99,7 @@ function StudentList() {
 
   return (
     <div className="flex">
-      <Dashboard name={Teacher} />
+      <Dashboard name={Teacher} role={"Teacher"}/>
       <div className="flex-1 flex flex-col items-center py-20 px-4 ">
         <div className="flex gap-2 w-full justify-start mb-6">
           <select

@@ -108,7 +108,7 @@ function AddStudent() {
 
   return (
     <div className="flex">
-      <Dashboard name={Teacher} />
+      <Dashboard name={Teacher} role={"Teacher"}/>
       <div className="flex-1 flex justify-center items-center flex-col py-20">
         <h1 className="text-2xl font-bold text-pBlue mb-4 flex items-center gap-2">
           <MdGroupAdd />

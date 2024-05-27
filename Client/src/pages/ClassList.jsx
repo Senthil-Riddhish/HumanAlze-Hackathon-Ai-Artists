@@ -75,7 +75,7 @@ function ClassList() {
   return (
     <>
       <div className="flex">
-        <Dashboard name={Teacher} />
+        <Dashboard name={Teacher} role={"Teacher"}/>
         <div className="flex-1">
           <div className="grid grid-cols-3 gap-4 pt-24 px-8">
             {isLoading ? (

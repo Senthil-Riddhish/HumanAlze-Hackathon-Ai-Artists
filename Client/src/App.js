@@ -8,10 +8,10 @@ import ClassList from './pages/ClassList';
 import AddClass from './pages/AddClass';
 import StudentList from './pages/StudentList';
 import AddStudent from './pages/AddStudent';
-import StudentProfile from './components/StudentProfile';
 import StudentPage from './pages/StudentPage';
 import ViewAnalytics from './pages/ViewAnalytics';
 import CreateTest from './pages/CreateTest'
+import StudentProfilePage from './pages/StudentProfilePage'
 
 function App() {
   return (
@@ -26,10 +26,10 @@ function App() {
           <Route path='/teacher-add-class' element={<AddClass />} />
           <Route path='/teacher-add-student' element={<AddStudent />} />
           <Route path='/teacher-student-profile/:id' element={<StudentPage />} />
-          <Route path='/student-auth' element={<StudentAuth />} />
-          <Route path='/student-profile/:id' element={<StudentProfile />} />
           <Route path='/teacher-view-analytics' element={<ViewAnalytics />} />
           <Route path='/teacher-create-test/*' element={<CreateTest />} />
+          <Route path='/student-auth' element={<StudentAuth />} />
+          <Route path='/student-profile' element={<StudentProfilePage />} />
         </Routes>
       </div>
     </Router>
