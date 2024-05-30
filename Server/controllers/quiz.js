@@ -3,6 +3,8 @@ import express from "express"
 import Quiz from "../models/quiz.js";
 import Teacher from "../models/teacher.js";
 import mongoose from 'mongoose';
+import QuizStudent from '../models/QuizStudent.js'
+import StudentQuizStatus from '../models/StudentQuizStatus.js'
 const router = express.Router()
 
 export const createQuiz = async (req, res) => {
@@ -204,4 +206,84 @@ export const updateQuestion = async (req, res) => {
         console.error("Error updating question:", error);
         res.status(500).json({ error: 'Internal server error' });
     }
+}
+
+export const quizHeading = async (req, res) => {
+    const { teacherId } = req.params;
+    console.log(teacherId);
+    try {
+        // Find quizzes by teacher ID
+        const quizzes = await Quiz.find({ teacherId });
+
+        // Check if quizzes exist
+        if (!quizzes || quizzes.length === 0) {
+            return res.status(404).json({ message: 'No quizzes found for this teacher' });
+        }
+
+        // Create a list of quiz details
+        const list = quizzes.map(quiz => ({
+            _id: quiz._id,
+            quizName: quiz.quizName
+        }));
+
+        console.log(list);
+        res.json({ list });
+    } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const allocateQuiz=async(req,res)=>{
+    const { quizId, studentRegno } = req.body;
+
+    try {
+        let quizStudent = await QuizStudent.findOne({ quizId });
+
+        if (quizStudent) {
+            // Check if the student registration number already exists in the array
+            const existingStudent = quizStudent.studentRegnArray.find(student => student.regn === studentRegno);
+            if (!existingStudent) {
+                quizStudent.studentRegnArray.push({ regn: studentRegno, status: false });
+                await quizStudent.save();
+            }
+        } else {
+            // If the document does not exist, create a new one
+            quizStudent = new QuizStudent({
+                quizId,
+                studentRegnArray: [{ regn: studentRegno, status: false }]
+            });
+            await quizStudent.save();
+        }
+
+        // Update or create the student's quiz status
+        let studentQuizStatus = await StudentQuizStatus.findOne({ studentRegn: studentRegno });
+
+        if (studentQuizStatus) {
+            // If the document exists, append the quiz ID to the incompleteQuizList array
+            if (!studentQuizStatus.incompleteQuizList.includes(quizId)) {
+                studentQuizStatus.incompleteQuizList.push(quizId);
+                await studentQuizStatus.save();
+            }
+        } else {
+            // If the document does not exist, create a new one
+            studentQuizStatus = new StudentQuizStatus({
+                studentRegn: studentRegno,
+                incompleteQuizList: [quizId]
+            });
+            await studentQuizStatus.save();
+        }
+
+        res.status(200).json({ message: 'Quiz allocated to student successfully' });
+    } catch (error) {
+        console.error('Error allocating quiz to student:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const teacherName=(req,res)=>{
+    const {id}=req.params;
+    console.log(id);
+    let teacher=Teacher.findById({_id:id});
+    return res.status(200).json({_idteacher:teacher.name})
 }

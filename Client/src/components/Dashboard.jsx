@@ -72,6 +72,17 @@ function Dashboard({ name, role }) {
                 </li>
                 <li>
                   <Link
+                    to="/teacher-AllocatequizStudents"
+                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <MdGroupAdd />
+                      Allocate Test
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/teacher-view-analytics"
                     className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
                   >

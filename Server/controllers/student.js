@@ -1,7 +1,10 @@
 import Student from "../models/student.js";
-import fetch from "node-fetch"
+import StudentQuizStatus from "../models/StudentQuizStatus.js";
+import Quiz from "../models/quiz.js";
+import fetch from "node-fetch";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Teacher from "../models/teacher.js";
 
 export const signup = async (req, res) => {
     try {
@@ -35,7 +38,8 @@ export const login = async (req, res) => {
       }
       const token = jwt.sign({
         name: student.name,
-        studentId: student._id
+        studentId: student._id,
+        regno:student.regno
     }, 'secret123')
       res.json({ message: 'ok', token, studentId: student._id });
     } catch (error) {
@@ -150,6 +154,52 @@ export const deleteStudent = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
+    }
+}
+
+export const studentQuizStatus=async(req,res)=>{
+    const { regn } = req.params;
+
+    try {
+        const studentQuizStatus = await StudentQuizStatus.findOne({ studentRegn: regn }).populate('incompleteQuizList').populate('completedQuizList');
+
+        if (!studentQuizStatus) {
+            return res.status(404).json({ message: 'Student quiz status not found' });
+        }
+        console.log(studentQuizStatus);
+        res.status(200).json(studentQuizStatus);
+    } catch (error) {
+        console.error('Error fetching student quiz status:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const getQuizDetails=async(req,res)=>{
+    const { quizId } = req.params;
+
+    try {
+        const quiz = await Quiz.findById(quizId);
+        if (!quiz) {
+            return res.status(404).json({ message: 'Quiz not found' });
+        }
+        let teacherName=await Teacher.findById(quiz._id)
+        quiz["teacherName"]=teacherName;
+        res.status(200).json(quiz);
+    } catch (error) {
+        console.error('Error fetching quiz details:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const submitQuiz=async(req,res)=>{
+    const { quizId, answers } = req.body;
+
+    try {
+        console.log("finalasnwers : ",answers);
+        res.status(200).json({ message: 'Quiz submitted successfully' });
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
 

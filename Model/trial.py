@@ -1,7 +1,8 @@
-
 from gramformer import Gramformer
 import torch
-
+from gramformer import Gramformer
+import nltk
+from nltk.tokenize import sent_tokenize
 def set_seed(seed):
   torch.manual_seed(seed)
   if torch.cuda.is_available():
@@ -13,7 +14,14 @@ set_seed(1212)
 gf = Gramformer(models = 1, use_gpu=False) # 1=corrector, 2=detector
 
 influent_sentences = [
-    "Yesterday, I goes to the park with my friends."
+    "Matt like fish",
+    "the collection of letters was original used by the ancient Romans",
+    "We enjoys horror movies",
+    "Anna and Mike is going skiing",
+    "I walk to the store and I bought milk",
+    "We all eat the fish and then made dessert",
+    "I will eat fish for dinner and drank milk",
+    "what be the reason for everyone leave the company",
 ]   
 
 for influent_sentence in influent_sentences:
