@@ -23,6 +23,7 @@ function Example({ index, quiz }) {
                 </Modal.Header>
                 <Modal.Body>
                     {quiz.questionText}
+                    <div>Marks : {quiz.marks}</div>
                     {
                         (quiz.questionType === "MCQ") && (quiz.options.length > 0) && (
                             <ListGroup as="ol" numbered className='pt-3'>

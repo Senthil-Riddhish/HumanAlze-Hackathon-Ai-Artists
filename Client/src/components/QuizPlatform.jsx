@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, Form } from 'react-bootstrap';
 import { API_ENDPOINT } from '../constants';
+import axios from 'axios';
+import jwt from "jwt-decode";
 
 const QuizPlatform = () => {
     const { quizId } = useParams();
@@ -10,25 +12,38 @@ const QuizPlatform = () => {
     const [answers, setAnswers] = useState([]);
     const navigate = useNavigate();
 
+    const [student, setStudent] = useState("");
+    const [regno,setRegno]=useState("");
+    const [id,setId]=useState("");
+
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
                 const response = await fetch(`${API_ENDPOINT}student/test/${quizId}`);
                 const data = await response.json();
-                console.log(data);
+                console.log("data : ", data);
                 setQuiz(data);
                 setAnswers(new Array(data.questions.length).fill(null)); // Initialize answers array
+                console.log("asnwers : ", answers);
             } catch (error) {
                 console.error('Error fetching quiz details:', error);
             }
         };
-
+        const token = localStorage.getItem("studentToken");
+        const studentToken = jwt(token);
+        const studentName = studentToken.name;
+        const regno = studentToken.regno;
+        setId(studentToken.studentId);
+        setStudent(studentName);
+        setRegno(regno);
         fetchQuiz();
     }, [quizId]);
 
     const handleAnswerChange = (index, answer) => {
         const newAnswers = [...answers];
+        console.log(index, answer);
         newAnswers[index] = answer;
+        console.log("after :  ", newAnswers);
         setAnswers(newAnswers);
     };
 
@@ -37,62 +52,22 @@ const QuizPlatform = () => {
     };
 
     const handleSubmitQuiz = async () => {
-        // Compile answers into the required format
-        const compiledAnswers = quiz.questions.map((question, index) => ({
-            questionText: question.questionText,
-            questionType: question.questionType,
-            answer: question.questionType === 'MCQ' ? answers[index] : answers[index]
-        }));
-
-        // Count correct answers for MCQ type questions
-        let correctAnswerCount = 0;
-        compiledAnswers.forEach((answer, index) => {
-            if (answer.questionType === 'MCQ' && answers[index] === quiz.questions[index].correctOption) {
-                correctAnswerCount++;
-            }
-        });
-
-        // Process Essay questions with Flask server
-        for (let i = 0; i < compiledAnswers.length; i++) {
-            if (compiledAnswers[i].questionType === 'Essay') {
-                try {
-                    const response = await fetch('http://127.0.0.1:5000/grammerpredict', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ text: compiledAnswers[i].answer }),
-                    });
-                    const data = await response.json();
-                    compiledAnswers[i].answer = data[0]; // Assuming the Flask server returns a list with a single element
-                } catch (error) {
-                    console.error('Error processing essay question:', error);
-                }
-            }
-        }
-
-        console.log("compiledAnswers : ", compiledAnswers); // Print the compiled answers in the desired format
-        console.log("correctAnswerCount : ", correctAnswerCount); // Print the count of correct answers
-
         try {
-            const response = await fetch(`${API_ENDPOINT}student/submit-quiz`, {
+            const response = await fetch(`${API_ENDPOINT}student/submit-quiz/${quizId}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ quizId, answers: compiledAnswers, correctAnswerCount }),
+                body: JSON.stringify({ answers,quiz,student,regno,id}) // Ensure the body is a JSON string
             });
-            if (response.ok) {
-                alert('Quiz submitted successfully!');
-                navigate('/student-profile');
-            } else {
-                const errorData = await response.json();
-                alert(`Error submitting quiz: ${errorData.message}`);
+            if (response.status==200){
+                navigate('/student-profile')
             }
+
         } catch (error) {
-            console.error('Error submitting quiz:', error);
+            console.error("Error deleting question:", error);
         }
-    };
+    }
 
     if (!quiz) return <p>Loading...</p>;
 
@@ -109,21 +84,24 @@ const QuizPlatform = () => {
                     {currentQuestion.questionType === 'MCQ' && (
                         <Form>
                             {currentQuestion.options.map((option, index) => (
-                                <Form.Check 
+                                <Form.Check
                                     key={index}
                                     type="radio"
                                     label={option}
                                     name={`answer${currentQuestionIndex}`}
-                                    value={index}
+                                    value={index} // <-- Assign the index as the value
                                     checked={answers[currentQuestionIndex] === index}
-                                    onChange={() => handleAnswerChange(currentQuestionIndex, index)}
+                                    onChange={() => {
+                                        console.log('Selected option index:', currentQuestionIndex, index);
+                                        handleAnswerChange(currentQuestionIndex, index);
+                                    }}
                                 />
                             ))}
                         </Form>
                     )}
                     {currentQuestion.questionType === 'Essay' && (
                         <Form.Group>
-                            <Form.Control 
+                            <Form.Control
                                 as="textarea"
                                 rows={3}
                                 value={answers[currentQuestionIndex] || ''}

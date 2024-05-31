@@ -1,10 +1,12 @@
 import Student from "../models/student.js";
 import StudentQuizStatus from "../models/StudentQuizStatus.js";
+import QuizStudent from "../models/QuizStudent.js"
 import Quiz from "../models/quiz.js";
 import fetch from "node-fetch";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Teacher from "../models/teacher.js";
+import axios from 'axios';
 
 export const signup = async (req, res) => {
     try {
@@ -191,12 +193,71 @@ export const getQuizDetails=async(req,res)=>{
     }
 }
 
-export const submitQuiz=async(req,res)=>{
-    const { quizId, answers } = req.body;
-
+export const submitQuiz = async (req, res) => {
+    let finals={};
+    const { quizId } = req.params;
+    const { answers, quiz, student, regno, id } = req.body;
+    //console.log(answers, quiz, student, regno, id);
+    finals[quizId]={}
+    let quizDetails=[];
+    let mcqMark = 0;
     try {
-        console.log("finalasnwers : ",answers);
-        res.status(200).json({ message: 'Quiz submitted successfully' });
+        console.log("final answer : ", answers);
+        // Create an array of promises for all the asynchronous tasks
+        const tasks = quiz.questions.map(async (ques, index) => {
+            if (ques.questionType === "MCQ") {
+                ques["optionChoosed"]=(answers[index] + 1).toString();
+                if ((answers[index] + 1).toString() === ques.correctOption) {
+                    ques["status"]="correct";
+                    mcqMark=mcqMark+parseInt(ques.marks)
+                } else {
+                    ques["status"]="wrong";
+                }
+            } else if (ques.questionType === "Essay") {
+                const response = await axios.post('http://127.0.0.1:5000/grammerpredict', {
+                    text: answers[index],
+                    mark: ques.marks
+                });
+                const data = response.data;
+                mcqMark=mcqMark+data.final_mark
+                ques["details"]=data.details;
+                ques["final_mark"]=data.final_mark;
+            }
+            quizDetails.push(ques)
+        });
+
+        // Wait for all the tasks to complete
+        await Promise.all(tasks);
+        finals[quizId]["quizDetails"]=quizDetails;
+        finals[quizId]["totalMark"]=mcqMark;
+        console.log(finals[quizId]);
+        /*
+        const quizStudent = await QuizStudent.findOne({ quizId });
+        if (quizStudent) {
+            quizStudent.studentRegnArray.forEach(student => {
+                if (student.regn === regno) {
+                    student.status = true;
+                }
+            });
+
+            await quizStudent.save();
+        }
+
+        let studentQuizStatus = await StudentQuizStatus.findOne({ studentRegn: regno });
+
+        if (studentQuizStatus) {
+            // Remove quizId from incompleteQuizList and add to completedQuizList
+            studentQuizStatus.incompleteQuizList = studentQuizStatus.incompleteQuizList.filter(id => id.toString() !== quizId);
+            studentQuizStatus.completedQuizList.push(quizId);
+
+            studentQuizStatus.quizAnswer.push(finals[quizId]);
+
+            await studentQuizStatus.save();
+        } else {
+            console.log(`StudentQuizStatus document not found for studentRegn: ${regno}`);
+        }*/
+        console.log("finished...");
+        res.status(200).json({ status:200,message: 'Quiz submitted successfully' });
     } catch (error) {
         console.error('Error submitting quiz:', error);
         res.status(500).json({ message: 'Internal server error' });

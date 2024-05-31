@@ -166,7 +166,7 @@ export const updateQuestion = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(quizid)) {
             return res.status(400).json({ error: 'Invalid quiz ID' });
         }
-
+        console.log("upadted...");
         const questionIndex = parseInt(index, 10); // Convert index to integer
 
         // Create the update object based on question type
@@ -194,7 +194,7 @@ export const updateQuestion = async (req, res) => {
 
         // Update the specific question in the quiz
         const result = await Quiz.updateOne({ _id: quizid }, update);
-
+        
         if (result.nModified === 0) {
             return res.status(404).json({ error: 'Quiz not found or question not updated' });
         }

@@ -1,4 +1,3 @@
-// models/StudentQuizStatus.js
 import mongoose from 'mongoose';
 
 const StudentQuizStatusSchema = new mongoose.Schema({
@@ -15,6 +14,10 @@ const StudentQuizStatusSchema = new mongoose.Schema({
     completedQuizList: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Quiz',
+        default: []
+    },
+    quizAnswer: {
+        type: Array,
         default: []
     }
 });

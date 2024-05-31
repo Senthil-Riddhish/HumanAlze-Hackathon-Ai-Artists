@@ -39,6 +39,7 @@ function Updatequiz({ index, quiz, quizid, setQuizzes }) {
         console.log("update : ", index, quizid);
         if (quiz.questionType === "Essay") {
             updatedQuiz = {
+                questionType,
                 questionText,
                 marks,
                 index,
@@ -48,6 +49,7 @@ function Updatequiz({ index, quiz, quizid, setQuizzes }) {
 
         } else {
             updatedQuiz = {
+                questionType,
                 questionText,
                 options,
                 correctOption,
@@ -58,7 +60,7 @@ function Updatequiz({ index, quiz, quizid, setQuizzes }) {
         }
 
         try {
-            const response = await fetch(`${API_ENDPOINT}/user/updatequestion`, {
+            const response = await fetch(`${API_ENDPOINT}user/updatequestion`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

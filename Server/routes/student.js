@@ -12,6 +12,6 @@ router.get('/get-student-data', getStudentData);
 router.delete('/delete-student', deleteStudent);
 router.get('/studentpage/:regn',studentQuizStatus);
 router.get('/test/:quizId',getQuizDetails);
-router.post('/submit-quiz', submitQuiz);
+router.post('/submit-quiz/:quizId', submitQuiz);
 
 export default router

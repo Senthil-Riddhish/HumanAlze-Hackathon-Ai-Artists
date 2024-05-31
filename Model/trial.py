@@ -1,32 +1,23 @@
-from gramformer import Gramformer
-import torch
-from gramformer import Gramformer
-import nltk
-from nltk.tokenize import sent_tokenize
-def set_seed(seed):
-  torch.manual_seed(seed)
-  if torch.cuda.is_available():
-    torch.cuda.manual_seed_all(seed)
+from textblob import TextBlob
 
-set_seed(1212)
+a = "cmputr I'm arent u have a snall index"  # incorrect spelling
+print("original text: " + str(a))
 
+b = TextBlob(a)
 
-gf = Gramformer(models = 1, use_gpu=False) # 1=corrector, 2=detector
+# Get the corrected text
+corrected_text = str(b.correct())
+print("corrected text: " + corrected_text)
 
-influent_sentences = [
-    "Matt like fish",
-    "the collection of letters was original used by the ancient Romans",
-    "We enjoys horror movies",
-    "Anna and Mike is going skiing",
-    "I walk to the store and I bought milk",
-    "We all eat the fish and then made dessert",
-    "I will eat fish for dinner and drank milk",
-    "what be the reason for everyone leave the company",
-]   
+# Split the original and corrected texts into words
+original_words = a.split()
+corrected_words = corrected_text.split()
 
-for influent_sentence in influent_sentences:
-    corrected_sentences = gf.correct(influent_sentence, max_candidates=1)
-    print("[Input] ", influent_sentence)
-    for corrected_sentence in corrected_sentences:
-      print("[Correction] ",corrected_sentence)
-    print("-" *100)
+# Find the words that have been changed and their indices
+changed_words = []
+for i, (orig_word, corr_word) in enumerate(zip(original_words, corrected_words)):
+    if orig_word != corr_word:
+        changed_words.append((orig_word, i))
+
+# Print the changed words with their indices
+print("Changed words with indices: " + str(changed_words))

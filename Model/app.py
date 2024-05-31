@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from gramformer import Gramformer
+from textblob import TextBlob
 import spacy
 
 # Initialize the Flask application
@@ -9,48 +10,47 @@ CORS(app)  # Enable CORS for all routes
 
 # Initialize SpaCy and Gramformer
 nlp = spacy.load("en_core_web_sm")
-gf = Gramformer(models=1, use_gpu=False)  # Load the default grammar correction model
+# Load the default grammar correction model
+gf = Gramformer(models=1, use_gpu=False)
 
 def detect_paragraphs(text):
     # Split text into paragraphs based on newline characters
     paragraphs = text.split('\n')
-    paragraphs = [para.strip() for para in paragraphs if para.strip()]  # Remove empty paragraphs
+    # Remove empty paragraphs
+    paragraphs = [para.strip() for para in paragraphs if para.strip()]
     return paragraphs
 
 def check_grammar(sentence):
     # Check grammar errors in the sentence using Gramformer
     corrected_sentences = gf.correct(sentence, max_candidates=1)
-    corrections = list(corrected_sentences)
-    if corrections:
-        return corrections[0]
-    return sentence
+    resarray = []
+    for corrected_sentence in corrected_sentences:
+        resarray = gf.get_edits(sentence, corrected_sentence)
+    return resarray, corrected_sentences
 
 def check_spelling_and_tense(sentence):
-    doc = nlp(sentence)
-    errors = []
-    for token in doc:
-        if token.tag_ in ["VBD", "VBN", "VBZ", "VBP"]:  # Tense related tags
-            errors.append({
-                'word': token.text,
-                'start': token.idx,
-                'end': token.idx + len(token.text),
-                'message': 'Possible tense issue'
-            })
-        if token.is_oov:  # Out of vocabulary words (possible spelling mistakes)
-            errors.append({
-                'word': token.text,
-                'start': token.idx,
-                'end': token.idx + len(token.text),
-                'message': 'Possible spelling mistake'
-            })
-    return errors
+    b = TextBlob(sentence)
+    corrected_text = str(b.correct())
+    original_words = sentence.split()
+    corrected_words = corrected_text.split()
+    changed_words = []
+    for i, (orig_word, corr_word) in enumerate(zip(original_words, corrected_words)):
+        if orig_word != corr_word:
+            changed_words.append((orig_word, i))
+    return changed_words, corrected_text
 
-@app.route('/grammarpredict', methods=['POST'])
+@app.route('/', methods=['GET'])
+def home():
+    return "hello"
+
+@app.route('/grammerpredict', methods=['POST'])
 def grammarpredict():
     data = request.get_json(force=True)
     text = data.get('text', '')
+    max_mark = int(data.get('mark', 5))  # Ensure max_mark is an integer
     paragraphs = detect_paragraphs(text)
     response_data = []
+    total_errors = 0
 
     for paragraph in paragraphs:
         doc = nlp(paragraph)
@@ -58,21 +58,42 @@ def grammarpredict():
         paragraph_errors = []
 
         for sentence in sentences:
-            grammar_corrected = check_grammar(sentence.text)
-            spelling_tense_errors = check_spelling_and_tense(sentence.text)
+            tense_array, grammar_corrected = check_grammar(sentence.text)
+            spelling_errors, corrected_text = check_spelling_and_tense(list(grammar_corrected)[0])
+            
+            # Count the errors
+            total_errors += len(tense_array) + len(spelling_errors)
+
             paragraph_errors.append({
-                'original': sentence.text,
-                'corrected': grammar_corrected,
-                'errors': spelling_tense_errors,
-                'error_count': len(spelling_tense_errors)
+                'incorrect_sentence': sentence.text,
+                'original': corrected_text,
+                'tense_array': tense_array,
+                'spelling_errors': spelling_errors
             })
+
 
         response_data.append({
             'paragraph': paragraph,
             'details': paragraph_errors
         })
 
-    return jsonify(response_data)
+    # Calculate the final mark based on the number of errors
+    penalty_per_error = max_mark / (total_errors + 1)  # +1 to avoid division by zero
+    final_mark = max(max_mark - (penalty_per_error * total_errors), 0)
+    final_mark = round(final_mark, 1)
+    
+    performance = "Bad"
+    if final_mark > 0.75 * max_mark:
+        performance = "Good"
+    elif final_mark >= 0.5 * max_mark:
+        performance = "Average"
+
+    return jsonify({
+        'final_mark': final_mark,
+        'details': response_data,
+        'performance': performance
+    })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
