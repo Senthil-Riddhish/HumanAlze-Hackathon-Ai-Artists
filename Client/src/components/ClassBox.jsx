@@ -3,6 +3,7 @@ import { AiFillDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 
 function ClassBox({ classData, deleteClass }) {
+  
   return (
     <div className="bg-pRed p-4 text-pCreme text-2xl font-semibold rounded cursor-pointer duration-75 shadow-[0_3px_10px_rgb(0,0,0,0.2)]">
       <Link to={`/teacher-classes/${classData._id}`}>
