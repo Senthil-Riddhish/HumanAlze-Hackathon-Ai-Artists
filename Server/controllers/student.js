@@ -265,3 +265,29 @@ export const submitQuiz = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+export const getstudentresult = async (req, res) => {
+    const { quizId, regno } = req.body;
+
+    try {
+        // Fetch the student's quiz status from the database
+        const studentStatus = await StudentQuizStatus.findOne({ studentRegn: regno });
+
+        if (!studentStatus) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // Find the quiz result that matches the given quizId
+        const quizResult = studentStatus.quizAnswer.find(quiz => quiz[quizId]);
+
+        if (!quizResult) {
+            return res.status(404).json({ message: 'Quiz result not found' });
+        }
+
+        // Return the quiz result
+        return res.status(200).json({ quizResult: quizResult[quizId] });
+    } catch (error) {
+        console.error('Error fetching quiz result:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
