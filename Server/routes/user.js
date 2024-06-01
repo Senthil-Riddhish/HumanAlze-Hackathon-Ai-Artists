@@ -1,6 +1,6 @@
 import express from "express"
 import { teacherSignup, teacherLogin } from "../controllers/teacher.js"
-import { createQuiz,getTeacherQuizzes,retrievequiz,quizHeading,addQuestion,deleteQuestion,updateQuestion,allocateQuiz,teacherName } from "../controllers/quiz.js";
+import { createQuiz,getTeacherQuizzes,retrievequiz,quizHeading,addQuestion,deleteQuestion,updateQuestion,allocateQuiz,teacherName,getrecommendations,updaterecommendations,deleterecommendation } from "../controllers/quiz.js";
 
 const router = express.Router()
 
@@ -15,4 +15,7 @@ router.put('/updatequestion',updateQuestion);
 router.get('/quizzes/:teacherId',quizHeading);
 router.post('/allocatequiz',allocateQuiz);
 router.get('/getteacherName/:id',teacherName);
+router.get('/getrecommendations/:quizId',getrecommendations);
+router.post('/updaterecommendations/:quizId',updaterecommendations);
+router.delete('/deleterecommendation/:quizId',deleterecommendation);
 export default router

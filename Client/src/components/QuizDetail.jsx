@@ -10,16 +10,20 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { MdDelete } from "react-icons/md";
 import Example from "../components/Example";
-import Updatequiz from "../components/Updatequiz"
+import Updatequiz from "../components/Updatequiz";
 
 const QuizDetail = () => {
     const { quizId } = useParams();
     const [quiz, setQuiz] = useState(null);
     const [error, setError] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
-    const values = [true];
-    const [fullscreen, setFullscreen] = useState(true);
+    const [recommendations, setRecommendations] = useState({ good: [], average: [], bad: [] });
     const [show, setShow] = useState(false);
+    const [showRecommendation, setShowRecommendation] = useState(false);
+    const [recommendationCategory, setRecommendationCategory] = useState('good');
+    const [recommendationTitle, setRecommendationTitle] = useState('');
+    const [recommendationLink, setRecommendationLink] = useState('');
+    const [recommendationDescription, setRecommendationDescription] = useState('');
     const [questionType, setQuestionType] = useState('');
     const [numOptions, setNumOptions] = useState(0);
     const [options, setOptions] = useState([]);
@@ -27,8 +31,8 @@ const QuizDetail = () => {
     const [questionText, setQuestionText] = useState('');
     const [correctOption, setCorrectOption] = useState('');
     const [numberofQuestions, setnumberofQuestions] = useState('0');
-    const [switchclick,setSwitchclick]=useState(false);
-    let data={}
+    const [switchclick, setSwitchclick] = useState(false);
+    let data = {};
 
     useEffect(() => {
         const fetchQuizDetail = async () => {
@@ -50,8 +54,9 @@ const QuizDetail = () => {
                 const result = await response.json();
                 console.log("page lad : ", result.quiz);
                 setQuiz(result.quiz);
-                setQuizzes(result.quiz.questions)
-                setnumberofQuestions(result.quiz.numberofQuestions.toString())
+                setQuizzes(result.quiz.questions);
+                setRecommendations(result.quiz.recommendations || { good: [], average: [], bad: [] });
+                setnumberofQuestions(result.quiz.numberofQuestions.toString());
             } catch (error) {
                 console.error("Error fetching quiz detail:", error);
                 setError('Failed to fetch quiz details');
@@ -79,9 +84,9 @@ const QuizDetail = () => {
     };
 
     const handleNumOptionsSubmit = () => {
-        let array = []
+        let array = [];
         for (let i = 0; i < numOptions; i++) {
-            array.push('')
+            array.push('');
         }
         setOptions(array);
     };
@@ -94,7 +99,7 @@ const QuizDetail = () => {
 
     const handleSubmit = async () => {
         if (questionType === "MCQ" || questionType === "MAQ") {
-            data={
+            data = {
                 questionText,
                 options,
                 correctOption,
@@ -103,7 +108,7 @@ const QuizDetail = () => {
             };
         }
         if (questionType === "Essay") {
-            data={
+            data = {
                 questionText,
                 questionType,
                 marks,
@@ -115,10 +120,9 @@ const QuizDetail = () => {
                 marks,
                 switchclick
             });
-            console.log("essay data : ",data);
+            console.log("essay data : ", data);
         }
 
-        //setSubmittedData(data);
         setShow(false);
         setQuestionType('');
         setNumOptions(0);
@@ -126,7 +130,7 @@ const QuizDetail = () => {
         setMarks(0);
         setQuestionText('');
         setCorrectOption('');
-        setSwitchclick(false)
+        setSwitchclick(false);
 
         try {
             const response = await fetch(`${API_ENDPOINT}user/addquestion/${quizId}`, {
@@ -146,18 +150,90 @@ const QuizDetail = () => {
 
             const result = await response.json();
             console.log("submit result : ", result);
-            //setQuiz(result.quiz);
             setQuizzes(result.questions);
-            setnumberofQuestions((parseInt(numberofQuestions) + 1).toString())
+            setnumberofQuestions((parseInt(numberofQuestions) + 1).toString());
         } catch (error) {
             console.error("Error adding question:", error);
             setError('Failed to add question');
         }
-
     };
 
-    function handleShow(breakpoint) {
-        setFullscreen(breakpoint);
+    const handleRecommendationSubmit = async () => {
+        const newRecommendation = {
+            title: recommendationTitle,
+            link: recommendationLink,
+            description: recommendationDescription,
+        };
+
+        const updatedRecommendations = {
+            ...recommendations,
+            [recommendationCategory]: [...recommendations[recommendationCategory], newRecommendation],
+        };
+        setRecommendations(updatedRecommendations);
+        try {
+            const response = await fetch(`${API_ENDPOINT}user/updaterecommendations/${quizId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedRecommendations)
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error("Error updating recommendations:", text);
+                setError('Network response was not ok');
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            console.log("Updated recommendations:", result);
+        } catch (error) {
+            console.error("Error updating recommendations:", error);
+            setError('Failed to update recommendations');
+        }
+
+        setShowRecommendation(false);
+        setRecommendationTitle('');
+        setRecommendationLink('');
+        setRecommendationDescription('');
+    };
+
+    const handleDeleteRecommendation = async (category, index) => {
+        const updatedCategory = [...recommendations[category]];
+        updatedCategory.splice(index, 1);
+
+        const updatedRecommendations = {
+            ...recommendations,
+            [category]: updatedCategory,
+        };
+        console.log(updatedRecommendations);
+        setRecommendations(updatedRecommendations);
+        try {
+            const response = await fetch(`${API_ENDPOINT}user/updaterecommendations/${quizId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedRecommendations)
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error("Error deleting recommendation:", text);
+                setError('Network response was not ok');
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            console.log("Delete recommendations:", result);
+        } catch (error) {
+            console.error("Error deleting recommendation:", error);
+            setError('Failed to delete recommendation');
+        }
+    };
+
+    function handleShow() {
         setShow(true);
         setQuestionType('');
         setNumOptions(0);
@@ -165,7 +241,11 @@ const QuizDetail = () => {
         setMarks(0);
         setQuestionText('');
         setCorrectOption('');
-        setSwitchclick(false)
+        setSwitchclick(false);
+    }
+
+    function handleShowRecommendation() {
+        setShowRecommendation(true);
     }
 
     function handleView(index) {
@@ -179,7 +259,7 @@ const QuizDetail = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ quizId }) // Ensure the body is a JSON string
+                body: JSON.stringify({ quizId })
             });
 
             if (!response.ok) {
@@ -191,10 +271,8 @@ const QuizDetail = () => {
 
             const result = await response.json();
             console.log("Delete result:", result);
-
-            // Update the state to remove the deleted question
             setQuizzes(result.questions);
-            setnumberofQuestions((parseInt(numberofQuestions) - 1).toString())
+            setnumberofQuestions((parseInt(numberofQuestions) - 1).toString());
         } catch (error) {
             console.error("Error deleting question:", error);
             setError('Failed to delete question');
@@ -203,34 +281,26 @@ const QuizDetail = () => {
 
     const handleSwitchChange = (event) => {
         if (event.target.checked) {
-            setSwitchclick(true)
+            setSwitchclick(true);
         }
     };
 
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">{quiz.quizName}</h1>
-            <p><strong>Description:</strong> {quiz.description}</p>
+            <p><strong>Quiz Description:</strong> {quiz.quizDesc}</p>
             <p><strong>Number of Questions:</strong> {numberofQuestions}</p>
-            <>
-                {values.map((v, idx) => (
-                    <Button key={idx} className="me-2 mb-2" onClick={() => handleShow(v)}>
-                        Add Question
-                        {typeof v === 'string' && `below ${v.split('-')[0]}`}
-                    </Button>
-                ))}
-            </>
+            <Button className="mb-4" onClick={handleShow}>Add Question</Button>
+            <Button className="mb-4 ms-2" onClick={handleShowRecommendation}>Add Recommendation</Button>
 
             <div>
                 {quizzes.length > 0 ? (
-
                     <Row xs={1} md={3} className="g-4">
                         {quizzes.map((q, idx) => (
                             <Col key={idx} id={`${idx}`}>
                                 <Card>
                                     <Card.Body>
                                         <Card.Title>Question {idx + 1}</Card.Title>
-
                                         <div className="d-flex align-items-center">
                                             <Updatequiz
                                                 index={idx}
@@ -252,7 +322,7 @@ const QuizDetail = () => {
                     <p>No Questions Added.</p>
                 )}
             </div>
-            <Modal show={show} fullscreen={fullscreen} onHide={() => setShow(false)}>
+            <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Question No: {quizzes.length + 1}</Modal.Title>
                 </Modal.Header>
@@ -261,7 +331,6 @@ const QuizDetail = () => {
                         <Dropdown.Toggle variant="success" id="dropdown-basic">
                             Type of Question
                         </Dropdown.Toggle>
-
                         <Dropdown.Menu>
                             <Dropdown.Item onClick={() => handleQuestionTypeSelect('MCQ')}>MCQ</Dropdown.Item>
                             <Dropdown.Item onClick={() => handleQuestionTypeSelect('MAQ')}>MAQ</Dropdown.Item>
@@ -271,23 +340,32 @@ const QuizDetail = () => {
                     {(
                         <Form.Group className="mt-3">
                             {(questionType === 'MCQ' || questionType === 'MAQ') && (
-                                <><Form.Label className="me-2">Number of Options : </Form.Label><Form.Control
-                                    type="number"
-                                    value={numOptions}
-                                    onChange={(e) => setNumOptions(e.target.value)}
-                                    min="2"
-                                    max="10"
-                                    className="d-inline-block w-auto me-2" /></>
+                                <>
+                                    <Form.Label className="me-2">Number of Options : </Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={numOptions}
+                                        onChange={(e) => setNumOptions(e.target.value)}
+                                        min="2"
+                                        max="10"
+                                        className="d-inline-block w-auto me-2"
+                                    />
+                                </>
                             )}
                             {(questionType.length > 0) && (
-                                <><Form.Label className="me-2">Marks Alloted : </Form.Label><Form.Control
-                                    type="number"
-                                    value={marks}
-                                    onChange={(e) => setMarks(e.target.value)}
-                                    min="2"
-                                    max="10"
-                                    className="d-inline-block w-auto me-2" />
-                                    {(questionType != "Essay") && (<Button onClick={handleNumOptionsSubmit}>Submit</Button>)}
+                                <>
+                                    <Form.Label className="me-2">Marks Alloted : </Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={marks}
+                                        onChange={(e) => setMarks(e.target.value)}
+                                        min="2"
+                                        max="10"
+                                        className="d-inline-block w-auto me-2"
+                                    />
+                                    {(questionType !== "Essay") && (
+                                        <Button onClick={handleNumOptionsSubmit}>Submit</Button>
+                                    )}
                                 </>
                             )}
                         </Form.Group>
@@ -302,7 +380,6 @@ const QuizDetail = () => {
                                     onChange={(e) => setQuestionText(e.target.value)}
                                 />
                             </Form.Group>
-
                             {options.map((option, index) => (
                                 <Form.Group key={index} className="mt-3">
                                     <Form.Label>Option {index + 1}</Form.Label>
@@ -313,7 +390,6 @@ const QuizDetail = () => {
                                     />
                                 </Form.Group>
                             ))}
-
                             <Form.Group className="mt-3">
                                 <Form.Label>Which option is the right answer?</Form.Label>
                                 <Form.Control
@@ -329,31 +405,101 @@ const QuizDetail = () => {
                             </div>
                         </>
                     )}
-                    {
-                        (questionType === "Essay") && (
-                            <>
-                                <Form.Check // prettier-ignore
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Plagiarism Check"
-                                    onChange={handleSwitchChange}
+                    {(questionType === "Essay") && (
+                        <>
+                            <Form.Check // prettier-ignore
+                                type="switch"
+                                id="custom-switch"
+                                label="Plagiarism Check"
+                                onChange={handleSwitchChange}
+                            />
+                            <Form.Group className="mt-3">
+                                <Form.Label>Type the Question</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={questionText}
+                                    onChange={(e) => setQuestionText(e.target.value)}
                                 />
-                                <Form.Group className="mt-3">
-                                    <Form.Label>Type the Question</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={questionText}
-                                        onChange={(e) => setQuestionText(e.target.value)}
-                                    />
-                                </Form.Group>
-                                <div className="text-center mt-3">
-                                    <Button onClick={handleSubmit}>Submit</Button>
-                                </div>
-                            </>
-                        )
-                    }
+                            </Form.Group>
+                            <div className="text-center mt-3">
+                                <Button onClick={handleSubmit}>Submit</Button>
+                            </div>
+                        </>
+                    )}
                 </Modal.Body>
             </Modal>
+            <Modal show={showRecommendation} onHide={() => setShowRecommendation(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Recommendation Materials</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mt-3">
+                        <Form.Label>Category</Form.Label>
+                        <Form.Select value={recommendationCategory} onChange={(e) => setRecommendationCategory(e.target.value)}>
+                            <option value="good">Good</option>
+                            <option value="average">Average</option>
+                            <option value="bad">Bad</option>
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mt-3">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={recommendationTitle}
+                            onChange={(e) => setRecommendationTitle(e.target.value)}
+                            placeholder="Enter the title"
+                        />
+                    </Form.Group>
+                    <Form.Group className="mt-3">
+                        <Form.Label>Link</Form.Label>
+                        <Form.Control
+                            type="url"
+                            value={recommendationLink}
+                            onChange={(e) => setRecommendationLink(e.target.value)}
+                            placeholder="Enter the URL"
+                        />
+                    </Form.Group>
+                    <Form.Group className="mt-3">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            value={recommendationDescription}
+                            onChange={(e) => setRecommendationDescription(e.target.value)}
+                            placeholder="Enter the description"
+                        />
+                    </Form.Group>
+                    <div className="text-center mt-3">
+                        <Button onClick={handleRecommendationSubmit}>Add Recommendation</Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+            <div className="mt-4">
+                <h2>Recommendations</h2>
+                {["good", "average", "bad"].map((category) => (
+                    <div key={category} className="mb-4">
+                        <h3>{category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                        {recommendations[category].length > 0 ? (
+                            recommendations[category].map((rec, index) => (
+                                <Card key={index} className="mb-2">
+                                    <Card.Body>
+                                        <Card.Title>{rec.title}</Card.Title>
+                                        <Card.Text>
+                                            <a href={rec.link} target="_blank" rel="noopener noreferrer">{rec.link}</a>
+                                            <p>{rec.description}</p>
+                                        </Card.Text>
+                                        <Button variant="danger" onClick={() => handleDeleteRecommendation(category, index)}>
+                                            <MdDelete />
+                                        </Button>
+                                    </Card.Body>
+                                </Card>
+                            ))
+                        ) : (
+                            <p>No recommendations in this category.</p>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };

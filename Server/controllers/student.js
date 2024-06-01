@@ -194,24 +194,25 @@ export const getQuizDetails=async(req,res)=>{
 }
 
 export const submitQuiz = async (req, res) => {
-    let finals={};
+    let finals = {};
     const { quizId } = req.params;
     const { answers, quiz, student, regno, id } = req.body;
-    //console.log(answers, quiz, student, regno, id);
-    finals[quizId]={}
-    let quizDetails=[];
+    finals[quizId] = {};
+    let quizDetails = [];
     let mcqMark = 0;
+    
     try {
         console.log("final answer : ", answers);
+
         // Create an array of promises for all the asynchronous tasks
         const tasks = quiz.questions.map(async (ques, index) => {
             if (ques.questionType === "MCQ") {
-                ques["optionChoosed"]=(answers[index] + 1).toString();
+                ques["optionChoosed"] = (answers[index] + 1).toString();
                 if ((answers[index] + 1).toString() === ques.correctOption) {
-                    ques["status"]="correct";
-                    mcqMark=mcqMark+parseInt(ques.marks)
+                    ques["status"] = "correct";
+                    mcqMark += parseInt(ques.marks);
                 } else {
-                    ques["status"]="wrong";
+                    ques["status"] = "wrong";
                 }
             } else if (ques.questionType === "Essay") {
                 const response = await axios.post('http://127.0.0.1:5000/grammerpredict', {
@@ -219,19 +220,20 @@ export const submitQuiz = async (req, res) => {
                     mark: ques.marks
                 });
                 const data = response.data;
-                mcqMark=mcqMark+data.final_mark
-                ques["details"]=data.details;
-                ques["final_mark"]=data.final_mark;
+                mcqMark += data.final_mark;
+                ques["details"] = data.details;
+                ques["final_mark"] = data.final_mark;
             }
-            quizDetails.push(ques)
+            quizDetails.push(ques);
         });
 
         // Wait for all the tasks to complete
         await Promise.all(tasks);
-        finals[quizId]["quizDetails"]=quizDetails;
-        finals[quizId]["totalMark"]=mcqMark;
+
+        finals[quizId]["quizDetails"] = quizDetails;
+        finals[quizId]["totalMark"] = mcqMark;
         console.log(finals[quizId]);
-        /*
+
         const quizStudent = await QuizStudent.findOne({ quizId });
         if (quizStudent) {
             quizStudent.studentRegnArray.forEach(student => {
@@ -239,7 +241,6 @@ export const submitQuiz = async (req, res) => {
                     student.status = true;
                 }
             });
-
             await quizStudent.save();
         }
 
@@ -249,18 +250,18 @@ export const submitQuiz = async (req, res) => {
             // Remove quizId from incompleteQuizList and add to completedQuizList
             studentQuizStatus.incompleteQuizList = studentQuizStatus.incompleteQuizList.filter(id => id.toString() !== quizId);
             studentQuizStatus.completedQuizList.push(quizId);
-
-            studentQuizStatus.quizAnswer.push(finals[quizId]);
+            
+            studentQuizStatus.quizAnswer.push({ [quizId]: finals[quizId] });
 
             await studentQuizStatus.save();
         } else {
             console.log(`StudentQuizStatus document not found for studentRegn: ${regno}`);
-        }*/
+        }
+
         console.log("finished...");
-        res.status(200).json({ status:200,message: 'Quiz submitted successfully' });
+        res.status(200).json({ status: 200, message: 'Quiz submitted successfully' });
     } catch (error) {
         console.error('Error submitting quiz:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-}
-
+};

@@ -3,8 +3,9 @@ import express from "express"
 import Quiz from "../models/quiz.js";
 import Teacher from "../models/teacher.js";
 import mongoose from 'mongoose';
-import QuizStudent from '../models/QuizStudent.js'
-import StudentQuizStatus from '../models/StudentQuizStatus.js'
+import QuizStudent from '../models/QuizStudent.js';
+import StudentQuizStatus from '../models/StudentQuizStatus.js';
+import QuizRecommendation from "../models/QuizRecommendationSchema.js";
 const router = express.Router()
 
 export const createQuiz = async (req, res) => {
@@ -60,13 +61,25 @@ export const getTeacherQuizzes = async (req, res) => {
     }
 };
 
-export const retrievequiz=async (req, res) => {
+export const retrievequiz = async (req, res) => {
     try {
-        // Extract the quizId from request parameters
         const { quizId } = req.params;
 
         // Find the quiz by quizId in the database
-        const quiz = await Quiz.findById(quizId);
+        let quiz = await Quiz.findById(quizId);
+
+        // Find the recommendations by quizId in the database
+        const recommend = await QuizRecommendation.findOne({ quizId: quizId });
+
+        // Attach recommendations to the quiz object if found
+        if (recommend) {
+            quiz = quiz.toObject(); // Convert mongoose document to plain JS object
+            quiz.recommendations = {
+                good: recommend.good,
+                average: recommend.average,
+                bad: recommend.bad
+            };
+        }
 
         // If quiz is found, send it in the response
         if (quiz) {
@@ -81,6 +94,7 @@ export const retrievequiz=async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 export const addQuestion = async (req, res) => {
     console.log("adding Question...", req.body);
@@ -287,3 +301,55 @@ export const teacherName=(req,res)=>{
     let teacher=Teacher.findById({_id:id});
     return res.status(200).json({_idteacher:teacher.name})
 }
+
+export const getrecommendations=async(req,res)=>{
+    try {
+        const recommendations = await QuizRecommendation.findOne({ quizId: req.params.quizId });
+        if (!recommendations) {
+          return res.status(404).send('Recommendations not found');
+        }
+        res.json(recommendations);
+      } catch (error) {
+        res.status(500).send('Server error');
+      }
+}
+
+export const updaterecommendations=async(req,res)=>{
+    try {
+        const { good, average, bad } = req.body;
+        let recommendations = await QuizRecommendation.findOne({ quizId: req.params.quizId });
+    
+        if (!recommendations) {
+          recommendations = new QuizRecommendation({ quizId: req.params.quizId, good, average, bad });
+        } else {
+          recommendations.good = good;
+          recommendations.average = average;
+          recommendations.bad = bad;
+        }
+    
+        await recommendations.save();
+        res.json(recommendations);
+      } catch (error) {
+        res.status(500).send('Server error');
+      }
+}
+
+export const deleterecommendation=async(req,res)=>{
+    try {
+        const { category, index } = req.body;
+        const recommendations = await QuizRecommendation.findOne({ quizId: req.params.quizId });
+    
+        if (!recommendations) {
+          return res.status(404).send('Recommendations not found');
+        }
+    
+        recommendations[category].splice(index, 1);
+        await recommendations.save();
+    
+        res.json(recommendations);
+      } catch (error) {
+        res.status(500).send('Server error');
+      }
+}
+
+
