@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
+import QuizList1 from "../components/QuizList1";
 import { useEffect, useState } from "react";
 import jwt from "jwt-decode";
 import { API_ENDPOINT } from "../constants"; // Update with your actual constants file
@@ -17,6 +18,7 @@ const StudentProfilePage = () => {
     const navigate = useNavigate();
     const [fullscreen, setFullscreen] = useState(true);
     const [show, setShow] = useState(false);
+    const [data, setData] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem("studentToken");
@@ -41,6 +43,8 @@ const StudentProfilePage = () => {
                 },
             });
             const data = await response.json();
+            setData(data)
+            console.log("data : ", data);
             if (response.ok) {
                 setIncompleteQuizzes(data.incompleteQuizList);
                 setCompletedQuizzes(data.completedQuizList);
@@ -104,7 +108,7 @@ const StudentProfilePage = () => {
                 <QuizList quizzes={incompleteQuizzes} onQuizClick={handleQuizClick} />
 
                 <h2>Completed Quizzes</h2>
-                <QuizList quizzes={completedQuizzes} onQuizClick={handleQuizView} />
+                <QuizList1 quizzes={completedQuizzes} onQuizClick={handleQuizView} data={data} />
             </Container>
 
             <Modal show={show} fullscreen={fullscreen} onHide={() => setShow(false)}>
@@ -155,7 +159,7 @@ const StudentProfilePage = () => {
                                         )}
                                         {question.questionType === "Essay" && (
                                             <div>
-                                                <p>Mark Given :  
+                                                <p>Mark Given :
                                                     <Badge bg="warning" className="ml-2">
                                                         {question.final_mark}
                                                     </Badge></p>

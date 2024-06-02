@@ -303,6 +303,7 @@ export const teacherName=(req,res)=>{
 }
 
 export const getrecommendations=async(req,res)=>{
+    console.log("recommendations");
     try {
         const recommendations = await QuizRecommendation.findOne({ quizId: req.params.quizId });
         if (!recommendations) {
