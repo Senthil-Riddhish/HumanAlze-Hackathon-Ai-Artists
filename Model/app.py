@@ -1,8 +1,16 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from gramformer import Gramformer
 from textblob import TextBlob
 import spacy
+import joblib
+from flask_cors import CORS
+import pandas as pd
+import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -12,6 +20,8 @@ CORS(app)  # Enable CORS for all routes
 nlp = spacy.load("en_core_web_sm")
 # Load the default grammar correction model
 gf = Gramformer(models=1, use_gpu=False)
+
+model = joblib.load('svm_model.pkl')
 
 def detect_paragraphs(text):
     # Split text into paragraphs based on newline characters
@@ -42,6 +52,13 @@ def check_spelling_and_tense(sentence):
 @app.route('/', methods=['GET'])
 def home():
     return "hello"
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json(force=True)
+    new_data = pd.DataFrame.from_dict(data, orient='index').T
+    prediction = model.predict(new_data)
+    return jsonify(prediction.tolist())
 
 @app.route('/grammerpredict', methods=['POST'])
 def grammarpredict():

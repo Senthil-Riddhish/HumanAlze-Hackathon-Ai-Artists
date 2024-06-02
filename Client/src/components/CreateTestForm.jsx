@@ -9,7 +9,7 @@ const CreateTestForm = () => {
     const [testName, setTestName] = useState("");
     const [testDescription, setTestDescription] = useState("");
     const navigate = useNavigate();
-    const teacherID=localStorage.getItem("userID");
+    const teacherID = localStorage.getItem("userID");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -104,7 +104,7 @@ const CreateTestForm = () => {
             </div>
             <div>
                 {quizzes.length > 0 ? (
-                    quizzes.map((quiz) => (
+                    [...quizzes].reverse().map((quiz) => (
                         <QuizCard key={quiz._id} quiz={quiz} />
                     ))
                 ) : (

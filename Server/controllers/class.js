@@ -1,6 +1,7 @@
 import Class from "../models/class.js";
-import Student from "../models/studentmanual.js"
-
+import Student from "../models/studentmanual.js";
+import Teacher from "../models/teacher.js";
+import Quiz from "../models/quiz.js";
 export const addClass = async (req, res) => {
     const { className, sem, year, subject } = req.body;
 
@@ -56,5 +57,23 @@ export const deleteClass = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
+    }
+}
+
+export const  getAllTests=async(req,res)=>{
+    const{teacherId}=req.params;
+    try {
+        const teacher = await Teacher.findById(teacherId);
+        if (!teacher) {
+            return res.status(404).json({ message: 'Teacher not found' });
+        }
+
+        const { quizList } = teacher;
+        const quizzes = await Quiz.find({ _id: { $in: quizList } });
+
+        return res.status(200).json(quizzes);
+    } catch (error) {
+        console.error('Error retrieving tests:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }

@@ -6,7 +6,7 @@ const studentSchema = new mongoose.Schema({
         required: true
     },
     rollNumber: {
-        type: Number,
+        type: String,
         required: true
     },
     studentClass: {
@@ -36,5 +36,5 @@ const studentSchema = new mongoose.Schema({
 }, { collection: 'student-data' });
 
 
-const Student = mongoose.model('Student', studentSchema)
-export default Student
+const Studenttest = mongoose.model('Student', studentSchema)
+export default Studenttest

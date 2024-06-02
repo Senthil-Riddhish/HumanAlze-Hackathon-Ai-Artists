@@ -134,7 +134,7 @@ function AddStudent() {
               <label htmlFor="rollNumber">Roll Number:</label>
               <input
                 className="p-1 text-black outline-pBlue rounded-sm"
-                type="number"
+                type="text"
                 id="rollNumber"
                 value={rollNumber}
                 onChange={(e) => setRollNumber(e.target.value)}

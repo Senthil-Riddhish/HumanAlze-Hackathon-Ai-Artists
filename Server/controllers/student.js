@@ -1,4 +1,4 @@
-import Student from "../models/student.js";
+import Studenttest  from "../models/studentmanual.js";
 import StudentQuizStatus from "../models/StudentQuizStatus.js";
 import QuizStudent from "../models/QuizStudent.js"
 import Quiz from "../models/quiz.js";
@@ -54,7 +54,7 @@ export const addStudent = async (req, res) => {
     try {
         const { studentName, rollNumber, studentClass, studentClassId, marks, defaulter } = req.body;
 
-        const existingStudent = await Student.findOne({ rollNumber, studentClassId });
+        const existingStudent = await Studenttest.findOne({ rollNumber, studentClassId });
         if (existingStudent) {
             return res.status(400).json({ message: 'A student with the same roll number already exists in this class' });
         }
@@ -83,7 +83,7 @@ export const addStudent = async (req, res) => {
             body: JSON.stringify(dataFrame)
         });
         const result = await response.json();
-        console.log(result)
+        console.log("PYTHON RESULT : ",result)
         let prediction = ""
 
         if (result[0] == "1") {
@@ -97,7 +97,7 @@ export const addStudent = async (req, res) => {
         }
 
 
-        const newStudent = new Student({
+        const newStudent = new Studenttest({
             studentName,
             rollNumber,
             studentClass,
@@ -120,7 +120,7 @@ export const addStudent = async (req, res) => {
 export const getStudents = async (req, res) => {
     const studentClassId = req.query.classId;
     try {
-        const students = await Student.find({ studentClassId });
+        const students = await Studenttest.find({ studentClassId });
         res.json(students);
     } catch (error) {
         console.error('Error fetching students:', error);
@@ -131,7 +131,7 @@ export const getStudents = async (req, res) => {
 export const getStudentData = async (req, res) => {
     const studentId = req.query.studentId;
     try {
-        const student = await Student.findById(studentId);
+        const student = await Studenttest.findById(studentId);
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }
