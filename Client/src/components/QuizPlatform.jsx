@@ -13,8 +13,8 @@ const QuizPlatform = () => {
     const navigate = useNavigate();
 
     const [student, setStudent] = useState("");
-    const [regno,setRegno]=useState("");
-    const [id,setId]=useState("");
+    const [regno, setRegno] = useState("");
+    const [id, setId] = useState("");
 
     useEffect(() => {
         const fetchQuiz = async () => {
@@ -52,20 +52,57 @@ const QuizPlatform = () => {
     };
 
     const handleSubmitQuiz = async () => {
+        let finals = {};
+        finals[quizId] = {};
+        let quizDetails = [];
+        let mcqMark = 0;
         try {
-            const response = await fetch(`${API_ENDPOINT}student/submit-quiz/${quizId}`, {
-                method: 'POST',
+            console.log("final answer : ", answers);
+            // Create an array of promises for all the asynchronous tasks
+            const tasks = quiz.questions.map(async (ques, index) => {
+                if (ques.questionType === "MCQ") {
+                    ques["optionChoosed"] = (answers[index] + 1).toString();
+                    if ((answers[index] + 1).toString() === ques.correctOption) {
+                        ques["status"] = "correct";
+                        mcqMark += parseInt(ques.marks);
+                    } else {
+                        ques["status"] = "wrong";
+                    }
+                } else if (ques.questionType === "Essay") {
+                    const response = await axios.post('http://127.0.0.1:5000/grammerpredict', {
+                        text: answers[index],
+                        mark: ques.marks
+                    });
+                    const data = response.data;
+                    mcqMark += data.final_mark;
+                    ques["details"] = data.details;
+                    ques["final_mark"] = data.final_mark;
+                    ques["performance"] = data.performance;
+                }
+                quizDetails.push(ques);
+            });
+            await Promise.all(tasks);
+            finals[quizId]["quizDetails"] = quizDetails;
+            finals[quizId]["totalMark"] = mcqMark;
+            console.log("finals : ",finals[quizId]);
+            const response = await axios.post(`${API_ENDPOINT}student/submit-quiz/${quizId}`, {
+                answers,
+                quiz,
+                student,
+                regno,
+                id,
+                finals
+            }, {
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ answers,quiz,student,regno,id}) // Ensure the body is a JSON string
+                }
             });
+            console.log(response);
             if (response.status==200){
-                navigate('/student-profile')
+                navigate('/student-profile')  
             }
-
         } catch (error) {
-            console.error("Error deleting question:", error);
+            console.error('Error submitting quiz:', error);
         }
     }
 

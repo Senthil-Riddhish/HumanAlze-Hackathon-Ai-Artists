@@ -88,7 +88,18 @@ function Dashboard({ name, role }) {
                   >
                     <span className="text-sm font-medium flex items-center gap-2">
                       <MdOutlineAnalytics />
-                      View Analytics
+                      View Test Analytics
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/quiz-view-analytics"
+                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
+                  >
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <MdOutlineAnalytics />
+                      View Quiz Analytics
                     </span>
                   </Link>
                 </li>

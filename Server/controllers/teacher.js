@@ -37,7 +37,8 @@ export const teacherLogin = async (req, res) => {
 
         const token = jwt.sign({
             name: teacher.name,
-            email: teacher.email
+            email: teacher.email,
+            teacherId:teacher._id
         }, 'secret123')
 
         res.json({ message: 'Login Successful', teacher: token,teacherID: teacher._id})

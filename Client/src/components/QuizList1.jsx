@@ -18,7 +18,6 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
             if (data && data.quizAnswer && Array.isArray(data.quizAnswer)) {
                 await Promise.all(data.quizAnswer.map(async quiz => {
                     const quizId = Object.keys(quiz)[0];
-                    console.log("quiz   : ", quiz[quizId]);
                     const matchingQuiz = quizzes.find(element => element._id === quizId);
                     if (matchingQuiz) {
                         let totalMarks = 0
@@ -26,6 +25,7 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
                             totalMarks = totalMarks + parseFloat(element.marks)
                         });
                         fetchquizMark[quizId] = totalMarks;
+                        console.log(quizId,totalMarks);
                         try {
                             const response = await fetch(`${API_ENDPOINT}user/getrecommendations/${quizId}`, {
                                 method: 'GET',

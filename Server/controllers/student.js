@@ -1,6 +1,7 @@
 import Studenttest  from "../models/studentmanual.js";
 import StudentQuizStatus from "../models/StudentQuizStatus.js";
 import QuizStudent from "../models/QuizStudent.js"
+import Student from "../models/student.js";
 import Quiz from "../models/quiz.js";
 import fetch from "node-fetch";
 import bcrypt from 'bcryptjs';
@@ -194,46 +195,11 @@ export const getQuizDetails=async(req,res)=>{
 }
 
 export const submitQuiz = async (req, res) => {
-    let finals = {};
     const { quizId } = req.params;
-    const { answers, quiz, student, regno, id } = req.body;
-    finals[quizId] = {};
-    let quizDetails = [];
-    let mcqMark = 0;
-    
+    const { answers, quiz, student, regno, id,finals } = req.body;
     try {
-        console.log("final answer : ", answers);
-
-        // Create an array of promises for all the asynchronous tasks
-        const tasks = quiz.questions.map(async (ques, index) => {
-            if (ques.questionType === "MCQ") {
-                ques["optionChoosed"] = (answers[index] + 1).toString();
-                if ((answers[index] + 1).toString() === ques.correctOption) {
-                    ques["status"] = "correct";
-                    mcqMark += parseInt(ques.marks);
-                } else {
-                    ques["status"] = "wrong";
-                }
-            } else if (ques.questionType === "Essay") {
-                const response = await axios.post('http://127.0.0.1:5000/grammerpredict', {
-                    text: answers[index],
-                    mark: ques.marks
-                });
-                const data = response.data;
-                mcqMark += data.final_mark;
-                ques["details"] = data.details;
-                ques["final_mark"] = data.final_mark;
-            }
-            quizDetails.push(ques);
-        });
-
-        // Wait for all the tasks to complete
-        await Promise.all(tasks);
-
-        finals[quizId]["quizDetails"] = quizDetails;
-        finals[quizId]["totalMark"] = mcqMark;
-        console.log(finals[quizId]);
-
+       
+        console.log("finals : ",finals[quizId]);
         const quizStudent = await QuizStudent.findOne({ quizId });
         if (quizStudent) {
             quizStudent.studentRegnArray.forEach(student => {

@@ -14,6 +14,7 @@ import CreateTest from './pages/CreateTest';
 import StudentProfilePage from './pages/StudentProfilePage';
 import AllocatequizStudents from './pages/AllocatequizStudents';
 import QuizPlatform from "./components/QuizPlatform";
+import ViewTestAnalytics from "./pages/ViewTestAnalytics";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path='/teacher-add-student' element={<AddStudent />} />
           <Route path='/teacher-student-profile/:id' element={<StudentPage />} />
           <Route path='/teacher-view-analytics' element={<ViewAnalytics />} />
+          <Route path='/quiz-view-analytics' element={<ViewTestAnalytics />} />
           <Route path='/teacher-create-test/*' element={<CreateTest />} />
           <Route path='/student-auth' element={<StudentAuth />} />
           <Route path='/teacher-AllocatequizStudents' element={<AllocatequizStudents/>}/>

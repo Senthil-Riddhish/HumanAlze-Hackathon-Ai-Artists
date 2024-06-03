@@ -353,4 +353,60 @@ export const deleterecommendation=async(req,res)=>{
       }
 }
 
+export const getstudentsDetail = async (req, res) => {
+    const { quizId } = req.params;
+    
+    try {
+        // Fetch the quiz student status based on the quizId
+        let studentStatus = await QuizStudent.findOne({ quizId });
+        
+        if (!studentStatus) {
+            return res.status(404).json({ message: "No student status found for the given quizId" });
+        }
+
+        const { studentRegnArray } = studentStatus;
+        const notAttended = [];
+        const attended = [];
+
+        // Iterate over the studentRegnArray
+        for (const student of studentRegnArray) {
+            const { regn, status } = student;
+
+            if (!status) {
+                // If the student has not attended the quiz, add to notAttended list
+                notAttended.push(regn);
+            } else {
+                // If the student has attended the quiz, fetch their quiz data
+                const studentQuizStatus = await StudentQuizStatus.findOne({ studentRegn: regn });
+                
+                if (studentQuizStatus) {
+                    // Extract quiz answer and details for the specific quizId
+                    const { quizAnswer } = studentQuizStatus;
+
+                    const quizData = quizAnswer.find(quiz => quiz[quizId]);
+                    if (quizData) {
+                        const { quizDetails,totalMark } = quizData[quizId];
+                        attended.push({
+                            regn,
+                            quizId,
+                            quizDetails,
+                            totalMark
+                        });
+                    }
+                }
+            }
+        }
+
+        // Return the result
+        res.status(200).json({
+            notAttended,
+            attended
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while fetching the student details" });
+    }
+};
+
 
