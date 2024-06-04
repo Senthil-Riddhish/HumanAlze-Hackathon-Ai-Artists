@@ -15,6 +15,7 @@ import StudentProfilePage from './pages/StudentProfilePage';
 import AllocatequizStudents from './pages/AllocatequizStudents';
 import QuizPlatform from "./components/QuizPlatform";
 import ViewTestAnalytics from "./pages/ViewTestAnalytics";
+import Studentdisplay from "./pages/Studentdisplay";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path='/teacher-AllocatequizStudents' element={<AllocatequizStudents/>}/>
           <Route path='/student-profile' element={<StudentProfilePage />} />
           <Route path='/quiz/:quizId' element={<QuizPlatform />} />
+          <Route path='/testmark' element={<Studentdisplay/>}/>
         </Routes>
       </div>
     </Router>

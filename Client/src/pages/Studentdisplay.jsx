@@ -4,7 +4,7 @@ import Dashboard from "../components/Dashboard";
 import jwt from "jwt-decode";
 import { API_ENDPOINT } from "../constants";
 
-function StudentPage() {
+function Studentdisplay() {
     const navigate = useNavigate();
     const [student, setStudent] = useState("");
     const [regno, setRegno] = useState("");
@@ -142,4 +142,4 @@ const ProfileDetail = ({ regno }) => {
 };
 
 
-export default StudentPage;
+export default Studentdisplay;
