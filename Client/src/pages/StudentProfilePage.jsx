@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
 import QuizList1 from "../components/QuizList1";

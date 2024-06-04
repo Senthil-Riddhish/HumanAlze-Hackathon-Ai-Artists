@@ -3,6 +3,7 @@ import { Row, Col, Card, Spinner, Button, Modal } from 'react-bootstrap';
 import { API_ENDPOINT } from "../constants";
 import Badge from 'react-bootstrap/Badge';
 import Stack from 'react-bootstrap/Stack';
+import React from 'react';
 
 const QuizList1 = ({ quizzes, onQuizClick, data }) => {
     const [recommendations, setRecommendations] = useState({});
@@ -113,7 +114,7 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
                     <Modal.Title>Recommendations for Quiz</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <strong>Top Recommendations:</strong>
+                    <strong>Top Recommendations : </strong>
                     {selectedQuizRecommendations.good?.map(rec => (
                         <div key={rec._id}>
                             <a href={rec.link} target="_blank" rel="noopener noreferrer">
@@ -121,9 +122,9 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
                             </a>
                             <p>{rec.description}</p>
                         </div>
-                    )) || 'N/A'}
-
-                    <strong>Intermediate Recommendations:</strong>
+                    )) || 'Not Recommended For You'}
+                    <div className='mb-2'></div>
+                    <strong>Intermediate Recommendations : </strong>
                     {selectedQuizRecommendations.average?.map(rec => (
                         <div key={rec._id}>
                             <a href={rec.link} target="_blank" rel="noopener noreferrer">
@@ -131,9 +132,9 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
                             </a>
                             <p>{rec.description}</p>
                         </div>
-                    )) || 'N/A'}
-
-                    <strong>Average Recommendations:</strong>
+                    )) || 'Not Recommended For You'}
+                    <div className='mb-2'></div>
+                    <strong>Average Recommendations : </strong>
                     {selectedQuizRecommendations.bad?.map(rec => (
                         <div key={rec._id}>
                             <a href={rec.link} target="_blank" rel="noopener noreferrer">
@@ -141,7 +142,7 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
                             </a>
                             <p>{rec.description}</p>
                         </div>
-                    )) || 'N/A'}
+                    )) || 'Not Recommended For You'}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseModal}>

@@ -228,9 +228,9 @@ export const quizHeading = async (req, res) => {
     try {
         // Find quizzes by teacher ID
         const quizzes = await Quiz.find({ teacherId });
-
+        console.log(quizzes);
         // Check if quizzes exist
-        if (!quizzes || quizzes.length === 0) {
+        if (!quizzes) {
             return res.status(404).json({ message: 'No quizzes found for this teacher' });
         }
 
@@ -239,12 +239,10 @@ export const quizHeading = async (req, res) => {
             _id: quiz._id,
             quizName: quiz.quizName
         }));
-
-        console.log(list);
-        res.json({ list });
+        return res.json({data: list});
     } catch (error) {
         console.error('Error fetching quizzes:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -306,9 +304,6 @@ export const getrecommendations=async(req,res)=>{
     console.log("recommendations");
     try {
         const recommendations = await QuizRecommendation.findOne({ quizId: req.params.quizId });
-        if (!recommendations) {
-          return res.status(404).send('Recommendations not found');
-        }
         res.json(recommendations);
       } catch (error) {
         res.status(500).send('Server error');

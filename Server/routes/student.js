@@ -1,5 +1,5 @@
 import express from "express"
-import { addStudent, getStudents, getStudentData, signup,login, deleteStudent,studentQuizStatus,getQuizDetails,submitQuiz,getstudentresult } from "../controllers/student.js"
+import { addStudent, getStudents, getStudentData, signup,login, deleteStudent,studentQuizStatus,getQuizDetails,submitQuiz,getstudentresult,getStudentmarks} from "../controllers/student.js"
 
 
 const router = express.Router()
@@ -14,5 +14,6 @@ router.get('/studentpage/:regn',studentQuizStatus);
 router.get('/test/:quizId',getQuizDetails);
 router.post('/getstudentresult',getstudentresult);
 router.post('/submit-quiz/:quizId', submitQuiz);
+router.get('/details/:regno',getStudentmarks)
 
 export default router

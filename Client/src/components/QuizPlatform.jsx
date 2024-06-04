@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Card, Button, Form } from 'react-bootstrap';
+import { Container, Card, Button, Form, Spinner } from 'react-bootstrap';
 import { API_ENDPOINT } from '../constants';
 import axios from 'axios';
 import jwt from "jwt-decode";
+
 
 const QuizPlatform = () => {
     const { quizId } = useParams();
     const [quiz, setQuiz] = useState(null);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
     const navigate = useNavigate();
 
     const [student, setStudent] = useState("");
@@ -24,7 +26,7 @@ const QuizPlatform = () => {
                 console.log("data : ", data);
                 setQuiz(data);
                 setAnswers(new Array(data.questions.length).fill(null)); // Initialize answers array
-                console.log("asnwers : ", answers);
+                console.log("answers : ", answers);
             } catch (error) {
                 console.error('Error fetching quiz details:', error);
             }
@@ -52,6 +54,7 @@ const QuizPlatform = () => {
     };
 
     const handleSubmitQuiz = async () => {
+        setIsSubmitting(true); // Set loading state to true
         let finals = {};
         finals[quizId] = {};
         let quizDetails = [];
@@ -84,7 +87,7 @@ const QuizPlatform = () => {
             await Promise.all(tasks);
             finals[quizId]["quizDetails"] = quizDetails;
             finals[quizId]["totalMark"] = mcqMark;
-            console.log("finals : ",finals[quizId]);
+            console.log("finals : ", finals[quizId]);
             const response = await axios.post(`${API_ENDPOINT}student/submit-quiz/${quizId}`, {
                 answers,
                 quiz,
@@ -98,12 +101,37 @@ const QuizPlatform = () => {
                 }
             });
             console.log(response);
-            if (response.status==200){
-                navigate('/student-profile')  
+            if (response.status === 200) {
+                const responsep = await axios.post('http://127.0.0.1:5000/plagiarism', {
+                    answers,
+                    quiz,
+                    student,
+                    regno,
+                    id,
+                    params: finals
+                });
+                console.log(responsep);
+                navigate('/student-profile');
             }
         } catch (error) {
             console.error('Error submitting quiz:', error);
+        } finally {
+            setIsSubmitting(false); // Set loading state to false after submission
         }
+    }
+
+    if (isSubmitting) {
+        return (
+            <Container className="mt-4 text-center">
+                <div style={{ position: 'relative' }}>
+                    {/* Customize the spinner animation */}
+                    <Spinner animation="border" role="status" style={{ width: '5rem', height: '5rem', marginBottom: '1rem' }}>
+                        <span className="sr-only">Loading...</span>
+                    </Spinner>
+                    <p className="mt-3">Your answers are being evaluated...</p>
+                </div>
+            </Container>
+        );
     }
 
     if (!quiz) return <p>Loading...</p>;

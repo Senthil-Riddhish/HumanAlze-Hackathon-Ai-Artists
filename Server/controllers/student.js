@@ -257,3 +257,16 @@ export const getstudentresult = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+export const getStudentmarks=async(req,res)=>{
+    const{regno}=req.params;
+    try{
+    let details=await Studenttest.find({"rollNumber":regno})
+    if(details){
+        console.log(details);
+        res.status(200).json({message:details});
+    }
+    }catch(err){
+        console.log("Error",err);
+    }
+}
