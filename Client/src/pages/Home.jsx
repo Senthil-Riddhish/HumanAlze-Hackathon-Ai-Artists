@@ -4,6 +4,10 @@ import studentM from "../assets/studentM.png";
 import studentF from "../assets/studentF.png";
 import teacherM from "../assets/teacherM.png";
 import teacherF from "../assets/teacherF.png";
+import  teacher from"../assets/download.png";
+import  teacherf from"../assets/download1.png";
+import studentm from "../assets/download3.png";
+import studentf from  "../assets/download4.png";
 
 function Home() {
   return (
@@ -13,20 +17,20 @@ function Home() {
         className="text-white bg-pBlue p-4 rounded-lg transition-all hover:scale-105"
       >
         <div className="flex gap-4">
-          <img className="w-24" src={teacherM} alt="teacher-male" />
-          <img className="w-24" src={teacherF} alt="teacher-female" />
+          <img className="w-24" src={teacher} alt="teacher-male" />
+          <img className="w-24" src={teacherf} alt="teacher-female" />
         </div>
-        <h2 className="text-3xl font-semibold mt-8">Teacher</h2>
+        <h2 className="text-3xl font-semibold mt-8" style={{fontFamily:"cursive"}}>Teacher</h2>
       </Link>
       <Link
         to="/student-auth"
         className="text-white bg-pBlue p-4 rounded-lg transition-all hover:scale-105"
       >
         <div className="flex gap-4">
-          <img className="w-24" src={studentM} alt="student-male" />
-          <img className="w-24" src={studentF} alt="student-female" />
+          <img className="w-24" src={studentm} alt="student-male" />
+          <img className="w-24" src={studentf} alt="student-female" />
         </div>
-        <h2 className="text-3xl font-semibold mt-8">Student</h2>
+        <h2 className="text-3xl font-semibold mt-8" style={{fontFamily:"cursive"}}>Student</h2>
       </Link>
     </div>
   );
