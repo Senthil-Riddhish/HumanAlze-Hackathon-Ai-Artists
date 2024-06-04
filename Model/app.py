@@ -17,6 +17,7 @@ import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 from bson import ObjectId
+import threading
 API_KEY = "AIzaSyCigl9R2ZmhVb9KVZrfilmHPqg-NkciqCE"
 SEARCH_ENGINE_ID = "c3b8d18ab708a421b"
 import time
@@ -27,7 +28,8 @@ db = client.test  # Replace 'test_database' with your actual database name
 
 # Initialize the Flask application
 app = Flask(__name__)
-executor = ThreadPoolExecutor(max_workers=4)
+executor = ThreadPoolExecutor(max_workers=5)
+lock = threading.Lock()
 CORS(app)  # Enable CORS for all routes
 
 # Initialize SpaCy and Gramformer
@@ -251,12 +253,13 @@ def long_running_task(data, collection):
                         
         
         print(student_doc)
-        updated_doc = {
-            "$set": {
+        with lock:
+            updated_doc = {
+                "$set": {
                 "quizAnswer": student_doc["quizAnswer"]
+                }
             }
-        }
-        collection.update_one({'_id': student_doc['_id']}, updated_doc)
+            collection.update_one({'_id': student_doc['_id']}, updated_doc)
     else:
         print("Student not found")
 

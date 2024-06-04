@@ -127,19 +127,24 @@ function ClassList() {
           ) : allTestData.length !== 0 ? (
             allTestData.map((testData) => (
               <Col key={testData._id} md={4} className="mb-4">
-                <Card className="h-100 shadow-sm">
-                  <Card.Body>
-                    <Card.Title>
-                      <Link to={`/teacher-create-test/quiz/${testData._id}`}>
-                        {testData.quizName}
-                      </Link>
-                    </Card.Title>
-                    <Card.Text>
-                      <strong>Questions:</strong> {testData.numberofQuestions}
-                    </Card.Text>
-                    <Card.Text>
-                      <strong>Created At:</strong> {testData.createdAt}
-                    </Card.Text>
+                <Card className="h-100 shadow-lg border-0 rounded-md overflow-hidden bg-white">
+                  <Card.Body className="flex flex-col justify-between">
+                    <div>
+                      <Card.Title className="text-lg font-semibold text-pBlue-600 mb-2">
+                        <Link
+                          to={`/teacher-create-test/quiz/${testData._id}`}
+                          className="hover:text-pBlue-800 transition-colors"
+                        >
+                          {testData.quizName}
+                        </Link>
+                      </Card.Title>
+                      <Card.Text className="text-sm text-gray-600">
+                        <strong>Questions:</strong> {testData.numberofQuestions}
+                      </Card.Text>
+                      <Card.Text className="text-sm text-gray-600">
+                        <strong>Created At:</strong> {testData.createdAt}
+                      </Card.Text>
+                    </div>
                   </Card.Body>
                 </Card>
               </Col>

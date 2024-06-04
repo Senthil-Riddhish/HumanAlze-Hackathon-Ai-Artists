@@ -239,10 +239,19 @@ const QuizList = ({ quizzes, onQuizClick }) => {
             ) : (
                 quizzes.map(quiz => (
                     <Col key={quiz._id} sm={12} md={6} lg={4} className="mb-4">
-                        <Card onClick={() => onQuizClick(quiz._id)}>
+                        <Card
+                            onClick={() => onQuizClick(quiz._id)}
+                            style={{
+                                border: '1px solid #ccc',
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                transition: 'box-shadow 0.3s ease',
+                                cursor: 'pointer'
+                            }}
+                        >
                             <Card.Body>
-                                <Card.Title>{quiz.quizName}</Card.Title>
-                                <Card.Text>{quiz.description}</Card.Text>
+                                <Card.Title>{quiz.quizName.toUpperCase()}</Card.Title>
+                                <Card.Text>Description : {quiz.description}</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>

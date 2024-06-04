@@ -7,7 +7,7 @@ import teacherF from "../assets/teacherF.png";
 
 function Home() {
   return (
-    <div className="h-screen flex justify-around items-center text-center">
+    <div className="h-screen flex justify-around items-center text-center bg-gray-200">
       <Link
         to="/teacher-auth"
         className="text-white bg-pBlue p-4 rounded-lg transition-all hover:scale-105"

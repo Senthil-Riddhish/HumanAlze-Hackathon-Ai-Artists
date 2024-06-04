@@ -122,25 +122,13 @@ function StudentList() {
             </option>
           </select>
         </div>
-        <div className="grid grid-cols-6 w-full">
-          <h2 className="p-2 border-2 bg-pRed text-pYellow font-semibold">
-            Roll No.
-          </h2>
-          <h2 className="p-2 border-2 bg-pRed text-pYellow font-semibold">
-            Class
-          </h2>
-          <h2 className="p-2 border-2 bg-pRed text-pYellow font-semibold">
-            Name
-          </h2>
-          <h2 className="p-2 border-2 bg-pRed text-pYellow font-semibold">
-            Prediction
-          </h2>
-          <h2 className="p-2 border-2 bg-pRed text-pYellow font-semibold">
-            Profile
-          </h2>
-          <h2 className="p-2 border-2 bg-pRed text-pYellow font-semibold">
-            Action
-          </h2>
+        <div className="grid grid-cols-6 w-full bg-gray-200 rounded-t-lg">
+          <h2 className="p-2 font-semibold" style={{fontSize:"25px"}}>Roll No.</h2>
+          <h2 className="p-2 font-semibold" style={{fontSize:"25px"}}>Class</h2>
+          <h2 className="p-2 font-semibold" style={{fontSize:"25px"}}>Name</h2>
+          <h2 className="p-2 font-semibold" style={{fontSize:"25px"}}>Prediction</h2>
+          <h2 className="p-2 font-semibold" style={{fontSize:"25px"}}>Profile</h2>
+          <h2 className="p-2 font-semibold" style={{fontSize:"25px"}}>Action</h2>
         </div>
         {isLoading ? (
           <div className="text-center text-2xl font-bold">Loading...</div>
@@ -148,15 +136,15 @@ function StudentList() {
           filteredStudents.map((student) => {
             return (
               <div
-                className="grid grid-cols-6 w-full border-2"
+                className="grid grid-cols-6 w-full border-t border-gray-300"
                 key={student._id}
               >
-                <h2 className="p-2">{student.rollNumber}</h2>
-                <h2 className="p-2">{student.studentClass}</h2>
-                <h2 className="p-2">{student.studentName}</h2>
-                <h2 className="p-2">{student.prediction}</h2>
+                <h2 className="p-2" style={{fontSize:"20px"}}>{student.rollNumber}</h2>
+                <h2 className="p-2" style={{fontSize:"20px"}}>{student.studentClass}</h2>
+                <h2 className="p-2" style={{fontSize:"20px"}}>{student.studentName}</h2>
+                <h2 className="p-2" style={{fontSize:"20px"}}>{student.prediction}</h2>
                 <Link
-                  className="p-2 text-pBlue font-semibold"
+                  className="p-2 text-blue-500 font-semibold"
                   to={`/teacher-student-profile/${student._id}`}
                 >
                   View Student Profile

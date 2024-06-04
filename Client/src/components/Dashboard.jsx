@@ -15,167 +15,194 @@ function Dashboard({ name, role }) {
     localStorage.removeItem("studentToken");
     localStorage.removeItem("tests");
   };
+
+  const sidebarStyles = {
+    backgroundColor: '#1A202C',
+    color: '#FFF',
+    height: '100vh',
+    padding: '20px 15px',
+    width: '240px', // Increased width
+    boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)' // Adding a slight shadow for better separation
+  };
+
+  const titleStyles = {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+    color: '#E2E8F0',
+    textAlign: 'left' // Left alignment
+  };
+
+  const linkStyles = {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px 0',
+    marginBottom: '10px',
+    color: '#E2E8F0',
+    textDecoration: 'none',
+    borderRadius: '5px',
+    transition: 'background-color 0.3s, transform 0.3s',
+    textAlign: 'left' // Left alignment
+  };
+
+  const iconStyles = {
+    marginRight: '12px',
+    fontSize: '1.2rem'
+  };
+
+  const handleMouseEnter = (e) => {
+    e.currentTarget.style.backgroundColor = '#2D3748';
+    e.currentTarget.style.transform = 'translateX(5px)';
+  };
+
+  const handleMouseLeave = (e) => {
+    e.currentTarget.style.backgroundColor = 'transparent';
+    e.currentTarget.style.transform = 'translateX(0)';
+  };
+
   return (
     <>
-      {
-        (role === "Teacher") && (
-          <><div className="min-h-screen flex flex-row">
-            <div className="flex flex-col w-56 bg-pBlue overflow-hidden">
-              <div className="flex items-center justify-center shadow-md">
-                <h1 className="text-md uppercase text-gray-300 flex items-center gap-2">
-                  {name}
-                </h1>
-              </div>
-              <ul className="flex flex-col py-4">
-                <li>
-                  <Link
-                    to="/teacher-classes"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <SiGoogleclassroom /> Classes
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/teacher-add-class"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <AiOutlineFolderAdd />
-                      Add Class
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/teacher-add-student"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <MdGroupAdd />
-                      Add students
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/teacher-create-test"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <MdGroupAdd />
-                      Generate Test
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/teacher-AllocatequizStudents"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <MdGroupAdd />
-                      Allocate Test
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/teacher-view-analytics"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <MdOutlineAnalytics />
-                      View Test Analytics
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/quiz-view-analytics"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <MdOutlineAnalytics />
-                      View Quiz Analytics
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <button
-                      className="text-sm font-medium flex items-center gap-2"
-                      onClick={handleLogout}
-                    >
-                      <BiLogOut />
-                      Logout
-                    </button>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div></>
-        )
-      }{
-        (role === "Student") && (
-          <><div className="min-h-screen flex flex-row">
-            <div className="flex flex-col w-56 bg-pBlue overflow-hidden">
-              <div className="flex items-center justify-center shadow-md">
-                <h1 className="text-md uppercase text-gray-300 flex items-center gap-2">
-                  {name}
-                </h1>
-              </div>
-              <ul className="flex flex-col py-4">
-              <li>
-                  <Link
-                    to="/student-profile"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <button
-                      className="text-sm font-medium flex items-center gap-2"
-                    >
-                      <BiLogOut />
-                      Home
-                    </button>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/testmark"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <button
-                      className="text-sm font-medium flex items-center gap-2"
-                    >
-                      <BiLogOut />
-                      Test Marks
-                    </button>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/"
-                    className="flex flex-row items-center justify-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 text-white hover:text-gray-500"
-                  >
-                    <button
-                      className="text-sm font-medium flex items-center gap-2"
-                      onClick={handleLogout}
-                    >
-                      <BiLogOut />
-                      Logout
-                    </button>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div></>
-        )
-      }
+      {role === "Teacher" && (
+        <div style={sidebarStyles}>
+          <div style={{ textAlign: 'left' }}>
+            <h1 style={titleStyles}>{name}</h1>
+          </div>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            <li>
+              <Link
+                to="/teacher-classes"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <SiGoogleclassroom style={iconStyles} />
+                Classes
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/teacher-add-class"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <AiOutlineFolderAdd style={iconStyles} />
+                Add Class
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/teacher-add-student"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <MdGroupAdd style={iconStyles} />
+                Add Students
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/teacher-create-test"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <MdGroupAdd style={iconStyles} />
+                Generate Test
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/teacher-AllocatequizStudents"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <MdGroupAdd style={iconStyles} />
+                Allocate Test
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/teacher-view-analytics"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <MdOutlineAnalytics style={iconStyles} />
+                View Test Analytics
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/quiz-view-analytics"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <MdOutlineAnalytics style={iconStyles} />
+                View Quiz Analytics
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleLogout}
+              >
+                <BiLogOut style={iconStyles} />
+                Logout
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
+      {role === "Student" && (
+        <div style={sidebarStyles}>
+          <div style={{ textAlign: 'left' }}>
+            <h1 style={titleStyles}>{name}</h1>
+          </div>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            <li>
+              <Link
+                to="/student-profile"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <BiLogOut style={iconStyles} />
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/testmark"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <BiLogOut style={iconStyles} />
+                Test Marks
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/"
+                style={linkStyles}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleLogout}
+              >
+                <BiLogOut style={iconStyles} />
+                Logout
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
     </>
   );
 }

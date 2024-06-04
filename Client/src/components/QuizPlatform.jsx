@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Card, Button, Form, Spinner } from 'react-bootstrap';
+import { Container, Card, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import { API_ENDPOINT } from '../constants';
 import axios from 'axios';
 import jwt from "jwt-decode";
@@ -25,7 +25,9 @@ const QuizPlatform = () => {
                 const data = await response.json();
                 console.log("data : ", data);
                 setQuiz(data);
-                setAnswers(new Array(data.questions.length).fill(null)); // Initialize answers array
+                if (data.questions && data.questions.length > 0) {
+                    setAnswers(new Array(data.questions.length).fill(null)); // Initialize answers array
+                }
                 console.log("answers : ", answers);
             } catch (error) {
                 console.error('Error fetching quiz details:', error);
@@ -135,6 +137,19 @@ const QuizPlatform = () => {
     }
 
     if (!quiz) return <p>Loading...</p>;
+
+    if (!quiz.questions || quiz.questions.length === 0) {
+        return (
+            <Container className="mt-4 text-center">
+                <Alert variant="warning">
+                    <Alert.Heading>No questions available</Alert.Heading>
+                    <p>
+                        It seems there are no questions in this quiz. Please check back later or contact your instructor for more details.
+                    </p>
+                </Alert>
+            </Container>
+        );
+    }
 
     const currentQuestion = quiz.questions[currentQuestionIndex];
 

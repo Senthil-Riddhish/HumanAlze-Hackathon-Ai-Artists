@@ -4,6 +4,8 @@ import { API_ENDPOINT } from "../constants";
 import Dashboard from "../components/Dashboard";
 import jwt from "jwt-decode";
 import { Pie, Bar } from "react-chartjs-2";
+import Popover from 'react-bootstrap/Popover';
+import { Card, Container, Row, Col, Modal, Button, Alert, Badge, ListGroup } from "react-bootstrap";
 
 function ViewTestAnalytics() {
     const [Teacher, setTeacher] = useState("");
@@ -13,7 +15,13 @@ function ViewTestAnalytics() {
     const [studentStatus, setStudentStatus] = useState(null);
     const [quizTotalMark, setQuizTotalMark] = useState(0);
     const [chosedQuiz, setChosedQuiz] = useState({});
+    const [selectedStudent, setSelectedStudent] = useState(null); // Track selected student
+    const [fullscreen, setFullscreen] = useState(true);
+    const [show, setShow] = useState(false);
+    const [fullscreen1, setFullscreen1] = useState(true);
+    const [show1, setShow1] = useState(false);
     const navigate = useNavigate();
+    const [answers, setAnswers] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem("user");
@@ -44,6 +52,20 @@ function ViewTestAnalytics() {
             navigate("/");
         }
     }, [navigate]);
+
+    function handleShow(student) {
+        console.log(student);
+        setAnswers(student.quizDetails)
+        setFullscreen(true);
+        setShow(true);
+    }
+
+    function handleShow1(student) {
+        console.log(student);
+        setAnswers(student.quizDetails)
+        setFullscreen1(true);
+        setShow1(true);
+    }
 
     const handleQuizChange = (event) => {
         const selectedQuizId = event.target.value;
@@ -79,6 +101,17 @@ function ViewTestAnalytics() {
         }
     };
 
+    // Handle popover display
+    const handlePopoverShow = (student) => {
+        console.log(student)
+        setSelectedStudent(student);
+    };
+
+    // Handle popover close
+    const handlePopoverClose = () => {
+        setSelectedStudent(null);
+    };
+
     const renderReport = () => {
         if (!studentStatus) {
             return <div>Please select a quiz to view the report.</div>;
@@ -103,6 +136,19 @@ function ViewTestAnalytics() {
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
+        };
+
+        const getAlertVariant = (level) => {
+            switch (level) {
+                case 'High':
+                    return 'danger';
+                case 'Average':
+                    return 'warning';
+                case 'Low':
+                    return 'success';
+                default:
+                    return 'secondary';
+            }
         };
 
         return (
@@ -130,6 +176,8 @@ function ViewTestAnalytics() {
                         <tr>
                             <th className="border px-4 py-2">Reg. No</th>
                             <th className="border px-4 py-2">Total Marks</th>
+                            <th className="border px-4 py-2">Details</th>
+                            <th className="border px-4 py-2">Plagiarism Report</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,10 +185,172 @@ function ViewTestAnalytics() {
                             <tr key={index}>
                                 <td className="border px-4 py-2">{student.regn}</td>
                                 <td className="border px-4 py-2">{student.totalMark}</td>
+                                <td className="border px-4 py-2">
+                                    <Button className="me-2 mb-2" onClick={() => handleShow(student)}>
+                                        Mark
+                                    </Button>
+                                </td>
+                                <td className="border px-4 py-2">
+                                    <Button className="me-2 mb-2" onClick={() => handleShow1(student)}>
+                                        plagiarism
+                                    </Button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+                <Modal show={show} fullscreen={fullscreen} onHide={() => setShow(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Modal</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {answers && answers.map((question, index) => ( // Ensure answers is not null
+                            <Card key={index} className="mb-3">
+                                <Card.Body>
+                                    <Card.Title>Question {index + 1} : {question.questionText}</Card.Title>
+                                    <Card.Subtitle className="mb-2 text-muted">Type: <Badge bg="secondary">{question.questionType}</Badge></Card.Subtitle>
+                                    <Card.Text>
+                                        Mark Alloted : <Badge bg="secondary">{question.marks}</Badge>
+                                    </Card.Text>
+                                    {question.questionType === "MCQ" && (
+                                        <>
+                                            <Card.Text>
+                                                Mark Given : <Badge bg="warning">
+                                                    {question.optionChoosed === question.correctOption ? question.marks : 0}
+                                                </Badge>
+                                            </Card.Text>
+                                            <div>
+                                                <ListGroup>
+                                                    <ListGroup.Item>
+                                                        <strong>Options : </strong> <Badge bg="secondary">{question.options.join(', ')}</Badge>
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item>
+                                                        <strong>Correct Option : </strong> <Badge bg="success">{question.options[parseInt(question.correctOption) - 1]}</Badge>
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item>
+                                                        <strong>Option Chosen : </strong> <Badge bg={question.status === 'wrong' ? 'danger' : 'success'}>{question.options[parseInt(question.optionChoosed) - 1]}</Badge>
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item>
+                                                        <strong>Status : </strong>
+                                                        <Badge bg={question.status === 'wrong' ? 'danger' : 'success'}>
+                                                            {question.status}
+                                                        </Badge>
+                                                    </ListGroup.Item>
+                                                </ListGroup>
+                                            </div>
+                                        </>
+                                    )}
+                                    {question.questionType === "Essay" && (
+                                        <div>
+                                            <p>Mark Given :
+                                                <Badge bg="warning" className="ml-2">
+                                                    {question.final_mark}
+                                                </Badge></p>
+                                            <p>Entered Paragraph : {question.details[0].paragraph}</p>
+                                            {question.details[0].details.length > 0 && question.details[0].details.map((detail, i) => (
+                                                (detail.spelling_errors.length > 0 || detail.tense_array.length > 0) && (
+                                                    <div key={i}>
+                                                        <Card className="mb-2">
+                                                            <Card.Body>
+                                                                <Card.Title>Error Details</Card.Title>
+                                                                <Card.Text>
+                                                                    <strong>Incorrect Sentence:</strong> {detail.incorrect_sentence}<br />
+                                                                    <strong>Original Sentence:</strong> {detail.original}
+                                                                </Card.Text>
+                                                                {detail.spelling_errors.length > 0 && (
+                                                                    <Alert variant="danger">
+                                                                        <Alert.Heading>Spelling Errors:</Alert.Heading>
+                                                                        <ul>
+                                                                            {detail.spelling_errors.map((error, index) => (
+                                                                                <li key={index}>
+                                                                                    <Badge variant="info" className="mr-2">{error[0]}</Badge>
+                                                                                    <Badge variant="secondary" className="mr-2">{error[1]}</Badge>
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </Alert>
+                                                                )}
+                                                                {detail.tense_array.length > 0 && (
+                                                                    <Alert variant="warning">
+                                                                        <Alert.Heading>Tense Errors:</Alert.Heading>
+                                                                        <ul>
+                                                                            {detail.tense_array.map((tense, index) => (
+                                                                                <li key={index}>
+                                                                                    <div className="d-flex flex-wrap m-2">
+                                                                                        <Badge variant="info" className="mr-2">{tense[0]}</Badge>
+                                                                                        <Badge variant="secondary" className="mr-2">{tense[1]}</Badge>
+                                                                                        {tense.slice(2).map((part, i) => (
+                                                                                            <Badge variant="light" className="mr-2" key={i}>{part}</Badge>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </Alert>
+                                                                )}
+                                                            </Card.Body>
+                                                        </Card>
+                                                    </div>
+                                                )
+                                            ))}
+                                        </div>
+                                    )}
+                                </Card.Body>
+                            </Card>
+                        ))}
+                    </Modal.Body>
+                </Modal>
+                <Modal show={show1} fullscreen={fullscreen1} onHide={() => setShow1(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Modal</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {answers && answers.map((question, index) => (
+                            question.questionType === "Essay" && (
+                                <div key={index}>
+                                    <Card className="mb-4 shadow-sm">
+                                        <Card.Body>
+                                            <Card.Title>Question {index + 1} : {question.questionText}</Card.Title>
+                                            <Card.Subtitle className="mb-2 text-muted">
+                                                Type: <Badge bg="secondary">{question.questionType}</Badge>
+                                            </Card.Subtitle>
+                                            <Card.Text>
+                                                Mark Allotted: <Badge bg="secondary">{question.marks}</Badge>
+                                            </Card.Text>
+                                            <p>Mark Given:
+                                                <Badge bg="warning" className="ml-2">
+                                                    {question.final_mark}
+                                                </Badge>
+                                            </p>
+                                            <p>Entered Paragraph: {question.details[0].paragraph}</p>
+                                            <div className="plagiarism-report mt-3">
+                                                <h5>Plagiarism Report:</h5>
+                                                {question.plagarism_report && question.plagarism_report.length > 0 ? (
+                                                    <div className="plagiarism-report-list">
+                                                        {question.plagarism_report.map((report, idx) => (
+                                                            <Alert key={idx} variant={getAlertVariant(report.similarity_level)}>
+                                                                <Alert.Heading>
+                                                                    <a href={report.link} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                                                                        {report.title}
+                                                                    </a>
+                                                                </Alert.Heading>
+                                                                <p>Similarity Score: {report.similarity_score}</p>
+                                                                <p>Similarity Percentage: {report.similarity_percentage.toFixed(2)}%</p>
+                                                                <p>Similarity Level: <Badge bg={getAlertVariant(report.similarity_level)}>{report.similarity_level}</Badge></p>
+                                                            </Alert>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p>No plagiarism detected.</p>
+                                                )}
+                                            </div>
+                                        </Card.Body>
+                                    </Card>
+                                </div>
+                            )
+                        ))}
+                    </Modal.Body>
+                </Modal>
 
                 <h4 className="text-lg font-semibold mb-4">Not Attended Students</h4>
                 <ul className="list-disc pl-6">

@@ -89,7 +89,7 @@ const QuizList1 = ({ quizzes, onQuizClick, data }) => {
                                 <Col key={quizId} sm={12} md={6} lg={4} className="mb-4">
                                     <Card>
                                         <Card.Body onClick={() => onQuizClick(quizId)}>
-                                            <Card.Title>{matchingQuiz.quizName}</Card.Title>
+                                            <Card.Title>{matchingQuiz.quizName.toUpperCase()}</Card.Title>
                                             <Card.Text>{matchingQuiz.description}</Card.Text>
                                             <Card.Subtitle>
                                                 <Badge pill bg="warning" text="dark">
